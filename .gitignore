@@ -1,0 +1,12 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*~
+.*.sw?
+
+# Portal/temp droppings
+.xdp_todo.*
+
+# Raw, untrimmed source clips and figure PDFs live outside the repo
+# (../_source_media/); never commit them here.
+_source_media/

@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="BarrierFormer: Transformer-Guided Predictive Barrier Enforcement for Safe Robot Control">
+  <meta name="keywords" content="Control barrier functions; Predictive control; Causal transformers; Safe robot control; Model-free control; Safe navigation">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BarrierFormer: Transformer-Guided Predictive Barrier Enforcement for Safe Robot Control</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <!-- <link rel="icon" href="./static/images/favicon.png"> -->
+  <link rel="icon" type="image/svg+xml" href="./static/images/favicon.svg" />
+  <link rel="icon" type="image/png" href="./static/images/favicon.png" />
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <!-- <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script> -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
+
+  <style>
+    /* Compact result tables, in the style of the paper. */
+    .results-table {
+      font-size: 0.82rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .results-table th,
+    .results-table td {
+      text-align: center !important;
+      vertical-align: middle !important;
+      white-space: nowrap;
+    }
+    .results-table th {
+      background-color: #fafafa;
+    }
+    .table-scroll {
+      overflow-x: auto;
+      width: 100%;
+    }
+    .table-caption {
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: 0.5rem;
+      margin-bottom: 2rem;
+    }
+    .video-grid video {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    .video-caption {
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin-top: 0.4rem;
+    }
+    .video-grid .column {
+      padding-left: 0.4rem;
+      padding-right: 0.4rem;
+    }
+    .gen-row-head {
+      margin-top: 1.4rem;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 0.3rem;
+      font-size: 0.95rem;
+    }
+    /* Placeholder buttons for artifacts that are not released yet. */
+    .button-coming-soon {
+      opacity: 0.55;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="https://kunalgarg.mit.edu/">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          More Research
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="https://mit-realm.github.io/gcbfplus-website/">
+            GCBF+: A Neural Graph Control Barrier Function Framework for Distributed Safe Multi-Agent Control
+          </a>
+          <a class="navbar-item" href="https://arxiv.org/abs/2311.13714">
+            Survey: Learning Safe Control for Multi-Robot Systems: Methods, Verification, and Open Challenges
+          </a>
+          <a class="navbar-item" href="https://arxiv.org/abs/2404.06413">
+            Online Motion Planning for Connected Multi-Robot Systems using Vision Language Models
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">BarrierFormer: Transformer-Guided Predictive Barrier Enforcement for Safe Robot Control</h1>
+          <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <!-- TODO: wrap in <a href="..."> once a personal page exists -->
+                Anandsingh Chauhan,</span>
+              <span class="author-block">
+                <a href="https://search.asu.edu/profile/5172311">Kunal Garg</a></span>
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Arizona State University</span>
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block publication-venue">Conference on Robot Learning (CoRL) 2026</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <!-- TO RELEASE: restore the href below and drop `button-coming-soon`,
+                   then change the label back to "Paper".
+                   <a href="./files/BarrierFormer.pdf" ...> -->
+              <span class="link-block">
+                <a class="external-link button is-normal is-rounded is-dark button-coming-soon">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper (Coming Soon)</span>
+                </a>
+              </span>
+              <!-- TO RELEASE: add href="<arXiv abstract URL>", drop `button-coming-soon`,
+                   and change the label back to "arXiv". -->
+              <span class="link-block">
+                <a class="external-link button is-normal is-rounded is-dark button-coming-soon">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv (Coming Soon)</span>
+                </a>
+              </span>
+              <!-- Video Link. -->
+              <!-- <span class="link-block">
+                <a href="https://youtu.be/TODO"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Supplementary Video</span>
+                </a>
+              </span> -->
+              <!-- Code Link. -->
+              <!-- TO RELEASE: add href="<code release URL>", drop `button-coming-soon`,
+                   and change the label back to "Code". -->
+              <span class="link-block">
+                <a class="external-link button is-normal is-rounded is-dark button-coming-soon">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code (Coming Soon)</span>
+                  </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <div class="hero-body">
+        <h2 class="title is-4">BarrierFormer operates in two steps during training. In Step 1, a causal transformer autoregressively generates a finite-horizon predictive rollout via the actor and dynamics heads. In Step 2, a barrier critic $h_\phi$ evaluates discrete-time CBF constraint violations along the predicted observations.</h2>
+        <center>
+          <img width=100% src="./figs/barrierformer_overview.png">
+        </center>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Paper video. -->
+    <!-- <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Video</h2>
+        <div class="publication-video">
+          <iframe src="https://www.youtube.com/embed/TODO?rel=0&amp;showinfo=0"
+                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div> -->
+    <!--/ Paper video. -->
+
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Control barrier functions (CBFs) have become one of the most popular tools for encoding and enforcing state constraints in safety-critical robotics. Standard CBF approaches are inherently myopic in nature as they enforce safety only at the current time step. Consequently, the system can be driven toward the boundary of the safe set where no feasible safe control exists at a future timestep. Model predictive control (MPC) based approaches address this by enforcing state constraints over a receding horizon. However, such approaches generally require the model to be known for solving a constrained optimization problem at every step, which is computationally expensive for real-time deployment. We propose BarrierFormer, a barrier-supervised transformer framework that addresses these limitations by encoding rollout-level CBF constraints in learning a model-free safe policy. A causal transformer encodes observation-action history, autoregressively generates a predictive rollout through the dynamics head to replace the model, and provides a residual correction to a nominal controller through the action head to replace the online computation. A barrier critic operating on local observations evaluates CBF constraint violations along this rollout, and a safety teacher computes barrier-consistent actions satisfying these constraints as direct supervision targets for the learned control policy. During inference, the policy maps observation-action history to control actions without any online optimization or model knowledge, enabling real-time model-free predictive safety enforcement. Evaluations across linear and nonlinear, 2D and 3D dynamical systems for safe goal-directed navigation demonstrate that BarrierFormer outperforms existing reinforcement learning (RL)-based, diffusion-based, MPC-based, and transformer-based approaches in safety rate and inference latency.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+  </div>
+</section>
+
+
+
+<section class="section">
+
+  <div class="container is-max-desktop">
+    <!-- Main point 1 -->
+    <div class="column">
+      <h2 class="title is-3">Method</h2>
+      <div class="content">
+        <div class="content has-text-justified">
+          <b>
+            The agent has no prior knowledge of obstacle locations and perceives its environment through $n_\text{rays}$ evenly-spaced LiDAR rays within a fixed sensing radius $R$. A single observation is therefore insufficient to characterize the safety of the current state: the agent may be <i>currently</i> safe but on a trajectory toward an obstacle that has not yet entered its sensing range. BarrierFormer enforces the barrier condition over a predicted rollout rather than pointwise at the current state.
+          </b>
+          <!-- Create a list -->
+          <ul>
+              <ul>
+                <li>
+                  <b>Problem setting:</b>
+                  The agent follows $x_{t+1} = f(x_t) + g(x_t) u_t$ but observes only its own state, the goal-relative position, and radius-limited LiDAR returns. The policy sees just the observation-action history $\mathcal{H}_t$ of length $K$, and must reach the goal while keeping $d(p_t, R_j) \geq r$ for every obstacle.
+                </li>
+                <li>
+                  <b>Why pointwise CBFs fall short:</b>
+                  The condition $h(F(x,u)) - h(x) + \alpha(h(x)) \geq 0$ constrains a single transition, so satisfying it at every step can still drive the system into a state where no safe action remains. BarrierFormer instead enforces
+                  $h_\phi(\hat{x}_{t+k+1}) \geq (1-\gamma)\, h_\phi(\hat{x}_{t+k})$ across a horizon $k = 0, \ldots, H-1$.
+                </li>
+                <li>
+                  <b>Step 1 &mdash; Autoregressive rollout:</b>
+                  A GPT-2-style causal transformer encodes $\mathcal{H}_t$ into a latent $z_t$ feeding two heads: an <i>actor head</i> that outputs a residual correction to a nominal controller $\mu_\text{nom}$, and a <i>dynamics head</i> that predicts a state increment. Iterating the two generates the predictive rollout &mdash; standing in for the model that MPC would require.
+                </li>
+                <li>
+                  <b>Step 2 &mdash; Barrier critic:</b>
+                  A critic $h_\phi$ maps each predicted <i>observation</i> to a barrier value, which is what makes it usable under partial observability. Per-step violations are aggregated across the horizon by a smooth log-sum-exp of the worst case.
+                </li>
+                <li>
+                  <b>SQP safety teacher:</b>
+                  A sequential quadratic program computes the minimal correction to $\mu_\text{nom}$ that satisfies every horizon barrier constraint. Only its first action is kept, as the supervision target for the actor head. It runs during training only.
+                </li>
+                <li>
+                  <b>Data labeling:</b>
+                  Because a collision-free state can still be doomed, a state is labeled safe only if it <i>and</i> the next $T_\text{label} = 32$ states are all collision-free; states in collision are labeled unsafe, and the rest stay unlabeled.
+                </li>
+                <li>
+                  <b>Training and deployment:</b>
+                  All components train jointly under actor, dynamics, and barrier losses. <b>At deployment, Step 2 is gone</b>: the transformer maps history straight to actions &mdash; no SQP, no rollout, no online optimization, no model.
+                </li>
+              </ul>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!--/ Main point 1 -->
+
+  </div>
+</section>
+
+
+
+<section class="section">
+
+  <div class="container is-max-desktop">
+    <div class="column">
+      <h2 class="title is-3">Seeing the Predicted Rollout</h2>
+      <div class="content">
+        <div class="content has-text-justified">
+          <b>
+            The predictive horizon, visualized.
+          </b>
+          The left panel shows the full workspace: the agent (blue) executes the trajectory in solid blue toward the goal (green star), while the <span style="color:#e07b17"><b>orange dashed line</b></span> is the $H = 6$ step plan predicted by the transformer at that instant. The right panel zooms in on the agent, showing its LiDAR rays and the numbered steps of that predicted plan. This rollout is what the barrier critic evaluates during training &mdash; and it is precisely what a myopic, single-step CBF never looks at.
+          <center>
+            <video width="100%" muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+              <source src="./vids/predictive_horizon_di.mp4" type="video/mp4">
+            </video>
+          </center>
+          <p class="video-caption">Double Integrator, $4 \times 4$ workspace, 12 obstacles.</p>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="content has-text-justified">
+          <b>
+            BarrierFormer on the training distribution ($l = 4$ workspace, 8 obstacles).
+          </b>
+          The agent perceives obstacles only through LiDAR rays within its sensing radius $R = 0.5$ and has no prior knowledge of obstacle locations. Safety is enforced purely by the policy parameters &mdash; no safety filter, no online optimization, and no model at inference.
+        </div>
+
+        <div class="columns is-centered video-grid">
+          <div class="column">
+            <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+              <source src="./vids/di_barrierformer.mp4" type="video/mp4">
+            </video>
+            <p class="video-caption">Double Integrator (2D, linear)</p>
+          </div>
+          <div class="column">
+            <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+              <source src="./vids/dc_barrierformer.mp4" type="video/mp4">
+            </video>
+            <p class="video-caption">Dubins Car (2D, nonlinear)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+<section class="section">
+
+  <div class="container is-max-desktop">
+    <!-- Main point 2 -->
+    <div class="column">
+      <h2 class="title is-3">Evaluations</h2>
+      <div class="content">
+        <div class="content has-text-justified">
+          <b>
+            We evaluate BarrierFormer on three dynamical systems: one linear (Double Integrator, DI) and two nonlinear (Dubins Car, DC and Crazyflie, CF). The <b>safety rate</b> is the fraction of episodes in which the robot never collides with an obstacle; the <b>reaching rate</b> is the fraction in which it reaches its goal; the <b>success rate</b> requires both. All results are reported as mean $\pm$ std over 3 random seeds $\times$ 32 environments. We compare against four baselines spanning three model-free paradigms and one model-based paradigm: CBF-RL (RL-based), CoBL-Diffusion (diffusion-based), ConBaT (transformer-based), and MPC (model-based). All baselines are re-implemented in our framework using the same dynamics, observation model, and obstacle configurations.
+          </b>
+
+          <br><br>
+
+          <b>
+            Performance comparison in terms of safety rate (Safe), goal reaching rate (Reach), and per-step computational time (Time). <b>Ours (Dyn-Head)</b> generates predictive rollouts with the learned dynamics head, while <b>Ours (Sim)</b> uses the true simulator during training. Among model-free methods, Ours (Dyn-Head) achieves the best balance between safety and goal-reaching with competitive inference time. Among model-based methods, Ours (Sim) matches MPC while reducing per-step inference time by over <b>three orders of magnitude</b>.
+          </b>
+
+          <div class="table-scroll">
+          <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
+            <thead>
+              <tr>
+                <th rowspan="2">Env.</th>
+                <th rowspan="2">Metric</th>
+                <th colspan="4">Model-Free</th>
+                <th colspan="2">Model-Based</th>
+              </tr>
+              <tr>
+                <th>CBF-RL</th>
+                <th>CoBL-Diff</th>
+                <th>ConBaT</th>
+                <th>Ours (Dyn-Head)</th>
+                <th>MPC</th>
+                <th>Ours (Sim)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td rowspan="3"><b>DI</b></td>
+                <td>Safe</td>
+                <td>55.21 &plusmn; 11.51</td>
+                <td>76.04 &plusmn; 3.90</td>
+                <td>72.9 &plusmn; 8.2</td>
+                <td><b>95.83 &plusmn; 1.47</b></td>
+                <td><b>98.96 &plusmn; 1.47</b></td>
+                <td><b>98.96 &plusmn; 1.47</b></td>
+              </tr>
+              <tr>
+                <td>Reach</td>
+                <td>47.92 &plusmn; 11.51</td>
+                <td>26.04 &plusmn; 7.80</td>
+                <td><b>94.8 &plusmn; 1.5</b></td>
+                <td>89.58 &plusmn; 6.42</td>
+                <td><b>96.86 &plusmn; 2.55</b></td>
+                <td>87.50 &plusmn; 4.42</td>
+              </tr>
+              <tr>
+                <td>Time (&mu;s)</td>
+                <td>9.24 &plusmn; 0.36</td>
+                <td>&ndash;<sup>&dagger;</sup></td>
+                <td>6.63 &plusmn; 0.04</td>
+                <td><b>4.99 &plusmn; 0.02</b></td>
+                <td>8256 &plusmn; 900</td>
+                <td><b>4.96 &plusmn; 0.03</b></td>
+              </tr>
+
+              <tr>
+                <td rowspan="3"><b>DC</b></td>
+                <td>Safe</td>
+                <td>23.96 &plusmn; 6.42</td>
+                <td>70.83 &plusmn; 3.90</td>
+                <td>64.6 &plusmn; 13.1</td>
+                <td><b>95.83 &plusmn; 2.95</b></td>
+                <td><b>97.92 &plusmn; 1.47</b></td>
+                <td><b>97.92 &plusmn; 1.47</b></td>
+              </tr>
+              <tr>
+                <td>Reach</td>
+                <td>25.00 &plusmn; 6.75</td>
+                <td>2.08 &plusmn; 2.95</td>
+                <td>27.1 &plusmn; 3.9</td>
+                <td><b>92.71 &plusmn; 2.95</b></td>
+                <td><b>95.83 &plusmn; 1.47</b></td>
+                <td>93.75 &plusmn; 4.42</td>
+              </tr>
+              <tr>
+                <td>Time (&mu;s)</td>
+                <td>9.90 &plusmn; 0.21</td>
+                <td>&ndash;<sup>&dagger;</sup></td>
+                <td>6.70 &plusmn; 0.02</td>
+                <td><b>4.79 &plusmn; 0.01</b></td>
+                <td>9280 &plusmn; 1262</td>
+                <td><b>4.82 &plusmn; 0.04</b></td>
+              </tr>
+
+              <tr>
+                <td rowspan="3"><b>CF</b></td>
+                <td>Safe</td>
+                <td>88.54 &plusmn; 2.95</td>
+                <td><b>99.83 &plusmn; 0.01</b></td>
+                <td>91.7 &plusmn; 5.9</td>
+                <td>96.88 &plusmn; 2.55</td>
+                <td><b>93.75 &plusmn; 0.00</b></td>
+                <td><b>93.75 &plusmn; 2.55</b></td>
+              </tr>
+              <tr>
+                <td>Reach</td>
+                <td>85.42 &plusmn; 2.95</td>
+                <td>0.00 &plusmn; 0.00</td>
+                <td><b>96.9 &plusmn; 2.6</b></td>
+                <td>92.71 &plusmn; 3.90</td>
+                <td><b>100.00 &plusmn; 0.00</b></td>
+                <td>94.79 &plusmn; 5.31</td>
+              </tr>
+              <tr>
+                <td>Time (&mu;s)</td>
+                <td>9.51 &plusmn; 0.38</td>
+                <td>&ndash;<sup>&dagger;</sup></td>
+                <td>8.63 &plusmn; 0.03</td>
+                <td><b>5.12 &plusmn; 0.04</b></td>
+                <td>2773 &plusmn; 103</td>
+                <td><b>5.08 &plusmn; 0.03</b></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          <p class="table-caption has-text-centered">
+            <sup>&dagger;</sup> Inference time is not reported for CoBL-Diffusion, as diffusion-based planners require iterative denoising at inference, resulting in slow inference speeds. CoBL-Diffusion achieves a higher safety rate on CF but at the cost of a near-zero reaching rate, consistent with the local trap problem where CBF-guided gradient projection during denoising prevents the planner from making progress toward the goal.
+          </p>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="content has-text-justified">
+          <b>
+            Zero-shot generalization across increased obstacle density $\rho$, defined as $N_\text{obs}/l^2$ for DI and DC and $N_\text{obs}/l^3$ for CF. The DI and DC models are trained with area size $l = 4$ and $N_\text{obs} = 8$, and the CF model with $l = 3$ and $N_\text{obs} = 6$; no retraining is performed. Both variants maintain competitive safety and success rates as the workspace scales, suggesting that the learned barrier critic generalizes to unseen obstacle configurations and larger environments.
+          </b>
+
+          <div class="table-scroll">
+          <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
+            <thead>
+              <tr>
+                <th rowspan="2">Env.</th>
+                <th rowspan="2">$\rho$</th>
+                <th rowspan="2"># Obs</th>
+                <th colspan="2">Safety Rate</th>
+                <th colspan="2">Reaching Rate</th>
+                <th colspan="2">Success Rate</th>
+              </tr>
+              <tr>
+                <th>Sim</th>
+                <th>Dyn-Head</th>
+                <th>Sim</th>
+                <th>Dyn-Head</th>
+                <th>Sim</th>
+                <th>Dyn-Head</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td rowspan="3"><b>DI</b></td>
+                <td>0.50</td><td>8</td>
+                <td>98.96 &plusmn; 1.47</td><td>94.79 &plusmn; 3.90</td>
+                <td>96.88 &plusmn; 2.55</td><td>93.75 &plusmn; 4.42</td>
+                <td>95.83 &plusmn; 2.95</td><td>89.58 &plusmn; 3.90</td>
+              </tr>
+              <tr>
+                <td>0.75</td><td>12</td>
+                <td>97.92 &plusmn; 2.95</td><td>92.71 &plusmn; 5.31</td>
+                <td>95.83 &plusmn; 3.90</td><td>92.71 &plusmn; 5.31</td>
+                <td>93.75 &plusmn; 4.42</td><td>86.46 &plusmn; 5.89</td>
+              </tr>
+              <tr>
+                <td>1.00</td><td>16</td>
+                <td>94.79 &plusmn; 3.90</td><td>91.67 &plusmn; 5.31</td>
+                <td>93.75 &plusmn; 4.42</td><td>90.62 &plusmn; 6.75</td>
+                <td>88.54 &plusmn; 5.31</td><td>83.33 &plusmn; 8.96</td>
+              </tr>
+
+              <tr>
+                <td rowspan="3"><b>DC</b></td>
+                <td>0.50</td><td>8</td>
+                <td>97.92 &plusmn; 2.95</td><td>96.88 &plusmn; 2.55</td>
+                <td>91.67 &plusmn; 6.42</td><td>87.50 &plusmn; 4.42</td>
+                <td>91.67 &plusmn; 6.42</td><td>87.50 &plusmn; 4.42</td>
+              </tr>
+              <tr>
+                <td>0.75</td><td>12</td>
+                <td>97.92 &plusmn; 2.95</td><td>94.79 &plusmn; 3.90</td>
+                <td>88.54 &plusmn; 5.31</td><td>84.38 &plusmn; 5.10</td>
+                <td>88.54 &plusmn; 5.31</td><td>83.33 &plusmn; 6.42</td>
+              </tr>
+              <tr>
+                <td>1.00</td><td>16</td>
+                <td>95.83 &plusmn; 1.47</td><td>93.75 &plusmn; 2.55</td>
+                <td>79.67 &plusmn; 5.31</td><td>77.08 &plusmn; 5.89</td>
+                <td>79.17 &plusmn; 5.31</td><td>77.08 &plusmn; 5.89</td>
+              </tr>
+
+              <tr>
+                <td rowspan="3"><b>CF</b></td>
+                <td>0.50</td><td>13</td>
+                <td>90.62 &plusmn; 5.10</td><td>91.67 &plusmn; 3.90</td>
+                <td>92.71 &plusmn; 5.89</td><td>89.58 &plusmn; 3.90</td>
+                <td>84.38 &plusmn; 9.20</td><td>81.25 &plusmn; 6.75</td>
+              </tr>
+              <tr>
+                <td>0.75</td><td>20</td>
+                <td>86.46 &plusmn; 5.31</td><td>87.50 &plusmn; 2.55</td>
+                <td>93.75 &plusmn; 6.75</td><td>89.58 &plusmn; 5.31</td>
+                <td>82.29 &plusmn; 8.20</td><td>79.17 &plusmn; 5.89</td>
+              </tr>
+              <tr>
+                <td>1.00</td><td>27</td>
+                <td>80.21 &plusmn; 9.66</td><td>86.46 &plusmn; 5.31</td>
+                <td>94.79 &plusmn; 5.31</td><td>84.38 &plusmn; 4.42</td>
+                <td>77.08 &plusmn; 12.06</td><td>75.00 &plusmn; 6.75</td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          <p class="table-caption has-text-centered">
+            Mean &plusmn; std over 32 environments and 3 seeds, 1024 timesteps.
+          </p>
+
+          <b>
+            Zero-shot generalization to larger and denser environments across two axes of out-of-distribution difficulty: obstacle density $\rho \in \{0.50, 0.75, 1.00\}$ and workspace size $l \in \{4, 6\}$ for DI and DC, and $l \in \{3, 4\}$ for CF. Rows are the dynamics (DI, DC, CF); columns are safety, reaching, and success rate. Each (seed, episode) instance is initialized at the highest density and lower-density variants are derived from the same instance by removing a random subset of obstacles, so that density is the sole varying factor.
+          </b>
+          <center>
+            <img width=100% src="./figs/generalization.png">
+          </center>
+        </div>
+      </div>
+    </div>
+    <!--/ Main point 2 -->
+
+  </div>
+</section>
+
+
+
+<section class="section">
+
+  <div class="container is-max-desktop">
+    <!-- Generalization videos -->
+    <div class="column">
+      <h2 class="title is-3">Generalization in Action</h2>
+      <div class="content">
+        <div class="content has-text-justified">
+          <b>
+            Every clip below comes from a policy trained only on a $4 \times 4$ workspace with 8 obstacles.
+          </b>
+          Nothing is retrained or fine-tuned. Moving left to right increases obstacle density $\rho = N_\text{obs}/l^2$; moving down enlarges the workspace, which lengthens the path to the goal and increases exposure to obstacles over the episode. Episodes run for 1024 control steps. The $8 \times 8$ rows go beyond the $l \in \{4, 6\}$ range reported in Table&nbsp;2 and Fig.&nbsp;2 above.
+        </div>
+      </div>
+
+      <!-- ---------- Double Integrator ---------- -->
+      <h3 class="title is-4">Double Integrator</h3>
+
+      <p class="gen-row-head"><b>$4 \times 4$ workspace</b> &mdash; the training size</p>
+      <div class="columns is-centered video-grid">
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_di_l4_rho050.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 0.50$ &middot; 8 obstacles</p>
+        </div>
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_di_l4_rho075.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 0.75$ &middot; 12 obstacles</p>
+        </div>
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_di_l4_rho100.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 1.00$ &middot; 16 obstacles</p>
+        </div>
+      </div>
+
+      <p class="gen-row-head"><b>$6 \times 6$ workspace</b></p>
+      <div class="columns is-centered video-grid">
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_di_l6_rho050.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 0.50$ &middot; 18 obstacles</p>
+        </div>
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_di_l6_rho075.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 0.75$ &middot; 27 obstacles</p>
+        </div>
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_di_l6_rho100.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 1.00$ &middot; 36 obstacles</p>
+        </div>
+      </div>
+
+      <p class="gen-row-head"><b>$8 \times 8$ workspace</b> &mdash; $4\times$ the training area</p>
+      <div class="columns is-centered video-grid">
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_di_l8_rho050.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 0.50$ &middot; 32 obstacles</p>
+        </div>
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_di_l8_rho075.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 0.75$ &middot; 48 obstacles</p>
+        </div>
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_di_l8_rho100.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 1.00$ &middot; 64 obstacles</p>
+        </div>
+      </div>
+
+      <!-- ---------- Dubins Car ---------- -->
+      <h3 class="title is-4" style="margin-top: 2.5rem;">Dubins Car</h3>
+
+      <p class="gen-row-head"><b>$4 \times 4$ workspace</b> &mdash; the training size</p>
+      <div class="columns is-centered video-grid">
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_dc_l4_rho050.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 0.50$ &middot; 8 obstacles</p>
+        </div>
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_dc_l4_rho075.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 0.75$ &middot; 12 obstacles</p>
+        </div>
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_dc_l4_rho100.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 1.00$ &middot; 16 obstacles</p>
+        </div>
+      </div>
+
+      <p class="gen-row-head"><b>$6 \times 6$ workspace</b></p>
+      <div class="columns is-centered video-grid">
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_dc_l6_rho050.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 0.50$ &middot; 18 obstacles</p>
+        </div>
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_dc_l6_rho075.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 0.75$ &middot; 27 obstacles</p>
+        </div>
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_dc_l6_rho100.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 1.00$ &middot; 36 obstacles</p>
+        </div>
+      </div>
+
+      <p class="gen-row-head"><b>$8 \times 8$ workspace</b> &mdash; $4\times$ the training area</p>
+      <div class="columns is-centered video-grid">
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_dc_l8_rho050.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 0.50$ &middot; 32 obstacles</p>
+        </div>
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_dc_l8_rho075.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 0.75$ &middot; 48 obstacles</p>
+        </div>
+        <div class="column">
+          <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
+            <source src="./vids/gen_dc_l8_rho100.mp4" type="video/mp4"></video>
+          <p class="video-caption">$\rho = 1.00$ &middot; 64 obstacles</p>
+        </div>
+      </div>
+    </div>
+    <!--/ Generalization videos -->
+  </div>
+</section>
+
+
+<section class="section">
+
+  <div class="container is-max-desktop">
+    <!-- Main point 3 -->
+    <div class="column">
+      <h2 class="title is-3">Ablations</h2>
+
+      <div class="content">
+        <div class="content has-text-justified">
+          <b>
+            Effect of the predictive horizon $H$ on Double Integrator, with history length fixed at $K = 12$.
+          </b>
+          The $H = 1$ setting corresponds to pointwise barrier supervision without multi-step predictive lookahead, and gives the lowest safety rate. Increasing the horizon from $H = 1$ to $H = 6$ improves safety from $83.33\%$ to $95.83\%$, showing the benefit of enforcing barrier constraints over predicted rollouts rather than only at the next step. Increasing $H$ further does not consistently help at fixed history length, because longer rollouts accumulate dynamics-head prediction error and introduce more linearized barrier constraints in the SQP subproblem. We therefore use $H = 6$ with $K = 12$ in the main experiments.
+
+          <div class="table-scroll">
+          <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>$H$</th>
+                <th>Safety Rate</th>
+                <th>Reaching Rate</th>
+                <th>Success Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td rowspan="5">Ours (Dyn-Head)</td>
+                <td>1</td><td>83.33 &plusmn; 4.78</td><td>90.63 &plusmn; 6.25</td><td>78.12 &plusmn; 5.42</td>
+              </tr>
+              <tr><td>3</td><td>88.54 &plusmn; 5.89</td><td>97.92 &plusmn; 1.47</td><td>87.50 &plusmn; 6.75</td></tr>
+              <tr><td><b>6</b></td><td><b>95.83 &plusmn; 1.47</b></td><td>89.58 &plusmn; 6.42</td><td>88.54 &plusmn; 6.42</td></tr>
+              <tr><td>9</td><td>89.58 &plusmn; 5.31</td><td>97.92 &plusmn; 1.47</td><td>87.50 &plusmn; 6.75</td></tr>
+              <tr><td>12</td><td>89.58 &plusmn; 3.90</td><td>100.00 &plusmn; 0.00</td><td>89.58 &plusmn; 3.90</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <p class="table-caption has-text-centered">
+            Mean &plusmn; std over 32 environments and 3 seeds.
+          </p>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="content has-text-justified">
+          <b>
+            Freezing the transformer backbone and dynamics head after Phase 1.
+          </b>
+          The frozen variant trains only the actor head and barrier critic in Phase 2, while <i>Ours</i> denotes the full training setup. The frozen dynamics head accumulates prediction error as the actor diverges from the pretraining distribution, and because attention is also frozen, the latent $z_t$ cannot adapt to the shifting action distribution &mdash; yielding inaccurate rollouts for barrier constraint evaluation. This motivates joint online training of all components.
+
+          <div class="table-scroll">
+          <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
+            <thead>
+              <tr>
+                <th rowspan="2">Env.</th>
+                <th colspan="2">Safety Rate</th>
+                <th colspan="2">Reaching Rate</th>
+                <th colspan="2">Success Rate</th>
+              </tr>
+              <tr>
+                <th>Frozen</th><th>Ours</th>
+                <th>Frozen</th><th>Ours</th>
+                <th>Frozen</th><th>Ours</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>DI</b></td>
+                <td>79.17 &plusmn; 8.20</td><td><b>95.83 &plusmn; 1.47</b></td>
+                <td><b>96.88 &plusmn; 2.55</b></td><td>89.58 &plusmn; 6.42</td>
+                <td>77.08 &plusmn; 9.66</td><td><b>88.54 &plusmn; 6.42</b></td>
+              </tr>
+              <tr>
+                <td><b>DC</b></td>
+                <td>67.71 &plusmn; 2.25</td><td><b>95.83 &plusmn; 2.95</b></td>
+                <td><b>100.00 &plusmn; 0.00</b></td><td>92.71 &plusmn; 2.95</td>
+                <td>67.71 &plusmn; 2.25</td><td><b>92.71 &plusmn; 2.95</b></td>
+              </tr>
+              <tr>
+                <td><b>CF</b></td>
+                <td>93.75 &plusmn; 5.10</td><td><b>96.88 &plusmn; 2.55</b></td>
+                <td>89.58 &plusmn; 3.90</td><td><b>92.71 &plusmn; 3.90</b></td>
+                <td>84.38 &plusmn; 9.20</td><td><b>89.58 &plusmn; 6.42</b></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          <p class="table-caption has-text-centered">
+            Mean &plusmn; std over 32 environments and 3 seeds. Best mean values are bolded.
+          </p>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="content has-text-justified">
+          <b>
+            Robustness to dynamics perturbations on Double Integrator.
+          </b>
+          All policies are trained on the unperturbed dynamics and evaluated without retraining, under a parametric velocity mismatch $\dot{p} = \alpha v$ and state-wise scaled process noise $\dot{x} = f(x,u) + w$, $w \sim \mathcal{N}(0, \Sigma_\sigma)$. Safety remains high across all tested $\alpha$; the lower reaching rate at $\alpha = 0.8$ is expected, since the robot moves more slowly and more often hits the episode time limit. Additive process noise is more challenging: safety stays above $92\%$ for moderate noise but degrades as the disturbance grows. The longer-history variant ($K = 32$, $H = 18$) tolerates larger noise better than the default. These are empirical robustness tests, not formal robust safety guarantees.
+
+          <div class="table-scroll">
+          <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
+            <thead>
+              <tr>
+                <th rowspan="2">Perturbation</th>
+                <th rowspan="2">Value</th>
+                <th colspan="3">$K = 12,\ H = 6$</th>
+                <th colspan="3">$K = 32,\ H = 18$</th>
+              </tr>
+              <tr>
+                <th>Safe</th><th>Reach</th><th>Success</th>
+                <th>Safe</th><th>Reach</th><th>Success</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td rowspan="5">$\dot{p} = \alpha v$</td>
+                <td>0.8</td><td>95.84</td><td>75.00</td><td>73.96</td><td>94.79</td><td>78.13</td><td>75.00</td>
+              </tr>
+              <tr><td>0.9</td><td>96.88</td><td>84.37</td><td>84.37</td><td>95.83</td><td>86.46</td><td>84.38</td></tr>
+              <tr><td>1.0</td><td>96.88</td><td>89.58</td><td>88.54</td><td>97.92</td><td>90.63</td><td>89.58</td></tr>
+              <tr><td>1.1</td><td>95.83</td><td>96.88</td><td>93.75</td><td>97.92</td><td>94.79</td><td>93.75</td></tr>
+              <tr><td>1.2</td><td>95.83</td><td>96.88</td><td>92.71</td><td>94.79</td><td>96.88</td><td>92.71</td></tr>
+
+              <tr>
+                <td rowspan="6">$\dot{x} = f(x,u) + w$</td>
+                <td>$\sigma = 0$</td><td>96.88</td><td>89.58</td><td>88.54</td><td>97.92</td><td>90.63</td><td>89.58</td>
+              </tr>
+              <tr><td>$\sigma = 0.001$</td><td>98.96</td><td>89.58</td><td>89.58</td><td>95.83</td><td>89.58</td><td>88.54</td></tr>
+              <tr><td>$\sigma = 0.0025$</td><td>92.71</td><td>86.46</td><td>83.33</td><td>91.67</td><td>88.54</td><td>84.38</td></tr>
+              <tr><td>$\sigma = 0.005$</td><td>73.96</td><td>82.29</td><td>68.75</td><td>76.04</td><td>84.38</td><td>72.92</td></tr>
+              <tr><td>$\sigma = 0.0075$</td><td>53.12</td><td>79.17</td><td>50.00</td><td>63.54</td><td>83.33</td><td>61.46</td></tr>
+              <tr><td>$\sigma = 0.01$</td><td>42.71</td><td>78.13</td><td>38.54</td><td>46.88</td><td>77.08</td><td>43.75</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <p class="table-caption has-text-centered">
+            Rates reported as percentages over 3 seeds and 32 environments.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Main point 3 -->
+
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@inproceedings{chauhan2026barrierformer,
+  title     = {BarrierFormer: Transformer-Guided Predictive Barrier Enforcement for Safe Robot Control},
+  author    = {Chauhan, Anandsingh and Garg, Kunal},
+  booktitle = {Conference on Robot Learning (CoRL)},
+  year      = {2026}
+}</code></pre>
+  </div>
+</section>
+
+
+<section class="section" id="Acknowledgments">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-4">Acknowledgments</h2>
+    <p>
+      The authors acknowledge the National Artificial Intelligence Research Resource (NAIRR) Pilot and AWS under grant NAIRR250034 for contributing to this research result. Any opinions, findings, conclusions, or recommendations expressed in this publication are those of the authors and do not necessarily reflect the views of the sponsors.
+    </p>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+            This webpage template is based that used by <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>.
+            We sincerely thank <a href="https://keunhong.com/">Keunhong Park</a> for developing and open-sourcing this template.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+// Play each clip only while it is on screen, starting from the first frame the
+// first time it is seen. Without this every video runs on page load, so by the
+// time a reader scrolls down the robot is already parked on its goal.
+(function () {
+  var vids = Array.prototype.slice.call(
+    document.querySelectorAll('video[data-autoplay-on-view]'));
+  if (!vids.length) return;
+
+  // Old browsers with no IntersectionObserver: just play everything.
+  if (!('IntersectionObserver' in window)) {
+    vids.forEach(function (v) { var p = v.play(); if (p) p.catch(function () {}); });
+    return;
+  }
+
+  // Start fetching a clip shortly before it scrolls into view.
+  var preloader = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      if (e.target.readyState === 0) { e.target.preload = 'auto'; e.target.load(); }
+      preloader.unobserve(e.target);
+    });
+  }, { rootMargin: '400px 0px' });
+
+  var player = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      var v = e.target;
+      if (e.isIntersecting) {
+        if (!v.dataset.seen) {
+          v.dataset.seen = '1';
+          try { v.currentTime = 0; } catch (err) {}
+        }
+        var p = v.play(); if (p) p.catch(function () {});
+      } else if (!v.paused) {
+        v.pause();
+      }
+    });
+  }, { threshold: 0.25 });
+
+  vids.forEach(function (v) { preloader.observe(v); player.observe(v); });
+})();
+</script>
+
+</body>
+</html>
