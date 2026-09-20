@@ -77,6 +77,10 @@
       padding-bottom: 0.3rem;
       font-size: 0.95rem;
     }
+    /* Divides closed-loop controller inputs from open-loop signals in the RMSE tables. */
+    .results-table tr.rmse-sep td {
+      border-top: 2px solid #b5b5b5 !important;
+    }
     /* Placeholder buttons for artifacts that are not released yet. */
     .button-coming-soon {
       opacity: 0.55;
@@ -482,6 +486,97 @@
           <center>
             <img width=100% src="./figs/generalization.png">
           </center>
+
+          <br>
+
+          <b>
+            The same evaluation in numbers, at the training workspace size.
+          </b>
+          The table below tabulates the smaller-workspace bars of Fig.&nbsp;2 &mdash; $l = 4$ for DI and DC, $l = 3$ for CF &mdash; across the three densities, for both the Sim and Dyn-Head variants.
+
+          <div class="table-scroll">
+          <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
+            <thead>
+              <tr>
+                <th rowspan="2">Env.</th>
+                <th rowspan="2">$\rho$</th>
+                <th rowspan="2">$M$</th>
+                <th colspan="2">Safe</th>
+                <th colspan="2">Reach</th>
+                <th colspan="2">Success</th>
+              </tr>
+              <tr>
+                <th>Sim</th><th>Dyn-Head</th>
+                <th>Sim</th><th>Dyn-Head</th>
+                <th>Sim</th><th>Dyn-Head</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td rowspan="3"><b>DI</b></td>
+                <td>0.50</td><td>8</td>
+                <td>98.96 &plusmn; 1.47</td><td>94.79 &plusmn; 3.90</td>
+                <td>96.88 &plusmn; 2.55</td><td>93.75 &plusmn; 4.42</td>
+                <td>95.83 &plusmn; 2.95</td><td>89.58 &plusmn; 3.90</td>
+              </tr>
+              <tr>
+                <td>0.75</td><td>12</td>
+                <td>97.92 &plusmn; 2.95</td><td>92.71 &plusmn; 5.31</td>
+                <td>95.83 &plusmn; 3.90</td><td>92.71 &plusmn; 5.31</td>
+                <td>93.75 &plusmn; 4.42</td><td>86.46 &plusmn; 5.89</td>
+              </tr>
+              <tr>
+                <td>1.00</td><td>16</td>
+                <td>94.79 &plusmn; 3.90</td><td>91.67 &plusmn; 5.31</td>
+                <td>93.75 &plusmn; 4.42</td><td>90.62 &plusmn; 6.75</td>
+                <td>88.54 &plusmn; 5.31</td><td>83.33 &plusmn; 8.96</td>
+              </tr>
+
+              <tr>
+                <td rowspan="3"><b>DC</b></td>
+                <td>0.50</td><td>8</td>
+                <td>97.92 &plusmn; 2.95</td><td>96.88 &plusmn; 2.55</td>
+                <td>91.67 &plusmn; 6.42</td><td>87.50 &plusmn; 4.42</td>
+                <td>91.67 &plusmn; 6.42</td><td>87.50 &plusmn; 4.42</td>
+              </tr>
+              <tr>
+                <td>0.75</td><td>12</td>
+                <td>97.92 &plusmn; 2.95</td><td>94.79 &plusmn; 3.90</td>
+                <td>88.54 &plusmn; 5.31</td><td>84.38 &plusmn; 5.10</td>
+                <td>88.54 &plusmn; 5.31</td><td>83.33 &plusmn; 6.42</td>
+              </tr>
+              <tr>
+                <td>1.00</td><td>16</td>
+                <td>95.83 &plusmn; 1.47</td><td>93.75 &plusmn; 2.55</td>
+                <td>79.67 &plusmn; 5.31</td><td>77.08 &plusmn; 5.89</td>
+                <td>79.17 &plusmn; 5.31</td><td>77.08 &plusmn; 5.89</td>
+              </tr>
+
+              <tr>
+                <td rowspan="3"><b>CF</b></td>
+                <td>0.50</td><td>13</td>
+                <td>90.62 &plusmn; 5.10</td><td>91.67 &plusmn; 3.90</td>
+                <td>92.71 &plusmn; 5.89</td><td>89.58 &plusmn; 3.90</td>
+                <td>84.38 &plusmn; 9.20</td><td>81.25 &plusmn; 6.75</td>
+              </tr>
+              <tr>
+                <td>0.75</td><td>20</td>
+                <td>86.46 &plusmn; 5.31</td><td>87.50 &plusmn; 2.55</td>
+                <td>93.75 &plusmn; 6.75</td><td>89.58 &plusmn; 5.31</td>
+                <td>82.29 &plusmn; 8.20</td><td>79.17 &plusmn; 5.89</td>
+              </tr>
+              <tr>
+                <td>1.00</td><td>27</td>
+                <td>80.21 &plusmn; 9.66</td><td>86.46 &plusmn; 5.31</td>
+                <td>94.79 &plusmn; 5.31</td><td>84.38 &plusmn; 4.42</td>
+                <td>77.08 &plusmn; 12.06</td><td>75.00 &plusmn; 6.75</td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          <p class="table-caption has-text-centered">
+            Mean &plusmn; std over 32 environments and 3 seeds, 1024 timesteps.
+          </p>
         </div>
       </div>
     </div>
@@ -721,6 +816,68 @@
           </div>
           <p class="table-caption has-text-centered">
             Mean &plusmn; standard deviation across 3 seeds, with each seed evaluated on 32 environments. Best mean values are bolded.
+          </p>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="content has-text-justified">
+          <b>
+            Dynamics-head rollout accuracy.
+          </b>
+          Because the dynamics head is a learned model, its accuracy depends on the coverage of the (state, action) pairs it saw during pretraining. Phase 1 therefore pretrains on trajectories from three different control policies &mdash; GCBF+, a QP safety controller, and the nominal LQR controller &mdash; giving a training distribution that spans learned safe actions, optimization-based corrections and nominal control. Each pretrained dynamics head is then evaluated on 50 independently generated episodes of 256 steps per input signal. The $H = 1$ column is the one-step RMSE; the rest report autoregressive rollout RMSE over the horizon. The upper block of each table is closed-loop controller inputs, the lower block synthetic open-loop signals never encountered during pretraining.
+
+          <p class="gen-row-head"><b>History length $T = 12$</b></p>
+          <div class="table-scroll">
+          <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
+            <thead>
+              <tr>
+                <th style="text-align:left !important;">Input signal</th>
+                <th>$H = 1$</th><th>$H = 8$</th><th>$H = 16$</th><th>$H = 24$</th><th>$H = 32$</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="text-align:left !important;">GCBF+</td><td>0.000282</td><td>0.00162</td><td>0.00210</td><td>0.00258</td><td>0.00310</td></tr>
+              <tr><td style="text-align:left !important;">QP</td><td>0.000913</td><td>0.00215</td><td>0.00255</td><td>0.00320</td><td>0.00393</td></tr>
+              <tr><td style="text-align:left !important;">LQR</td><td>0.000383</td><td>0.00143</td><td>0.00186</td><td>0.00253</td><td>0.00301</td></tr>
+              <tr><td style="text-align:left !important;">Action head (BarrierFormer)</td><td>0.000350</td><td>0.00160</td><td>0.00214</td><td>0.00247</td><td>0.00301</td></tr>
+              <tr><td style="text-align:left !important;">Action head + noise</td><td>0.000343</td><td>0.00159</td><td>0.00219</td><td>0.00271</td><td>0.00300</td></tr>
+              <tr class="rmse-sep"><td style="text-align:left !important;">Constant</td><td>0.000567</td><td>0.00409</td><td>0.00395</td><td>0.00483</td><td>0.00539</td></tr>
+              <tr><td style="text-align:left !important;">Uniform random</td><td>0.001910</td><td>0.00431</td><td>0.00514</td><td>0.00507</td><td>0.00489</td></tr>
+              <tr><td style="text-align:left !important;">Matched random</td><td>0.001441</td><td>0.00449</td><td>0.00543</td><td>0.00558</td><td>0.00680</td></tr>
+              <tr><td style="text-align:left !important;">Polynomial</td><td>0.000652</td><td>0.00460</td><td>0.00499</td><td>0.00484</td><td>0.00538</td></tr>
+              <tr><td style="text-align:left !important;">Sinusoidal</td><td>0.001209</td><td>0.00365</td><td>0.00530</td><td>0.00669</td><td>0.00831</td></tr>
+              <tr><td style="text-align:left !important;">Zero</td><td>0.000204</td><td>0.00447</td><td>0.00667</td><td>0.00881</td><td>0.01113</td></tr>
+            </tbody>
+          </table>
+          </div>
+
+          <p class="gen-row-head"><b>History length $T = 32$</b></p>
+          <div class="table-scroll">
+          <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
+            <thead>
+              <tr>
+                <th style="text-align:left !important;">Input signal</th>
+                <th>$H = 1$</th><th>$H = 8$</th><th>$H = 16$</th><th>$H = 24$</th><th>$H = 32$</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="text-align:left !important;">GCBF+</td><td>0.000170</td><td>0.00084</td><td>0.00171</td><td>0.00246</td><td>0.00326</td></tr>
+              <tr><td style="text-align:left !important;">QP</td><td>0.000290</td><td>0.00169</td><td>0.00229</td><td>0.00310</td><td>0.00386</td></tr>
+              <tr><td style="text-align:left !important;">LQR</td><td>0.000130</td><td>0.00110</td><td>0.00176</td><td>0.00252</td><td>0.00325</td></tr>
+              <tr><td style="text-align:left !important;">Action head (BarrierFormer)</td><td>0.000300</td><td>0.00089</td><td>0.00163</td><td>0.00243</td><td>0.00332</td></tr>
+              <tr><td style="text-align:left !important;">Action head + noise</td><td>0.000300</td><td>0.00098</td><td>0.00164</td><td>0.00242</td><td>0.00335</td></tr>
+              <tr class="rmse-sep"><td style="text-align:left !important;">Constant</td><td>0.000220</td><td>0.00176</td><td>0.00226</td><td>0.00285</td><td>0.00342</td></tr>
+              <tr><td style="text-align:left !important;">Uniform random</td><td>0.000620</td><td>0.00194</td><td>0.00217</td><td>0.00251</td><td>0.00292</td></tr>
+              <tr><td style="text-align:left !important;">Matched random</td><td>0.000540</td><td>0.00167</td><td>0.00231</td><td>0.00259</td><td>0.00322</td></tr>
+              <tr><td style="text-align:left !important;">Polynomial</td><td>0.000370</td><td>0.00203</td><td>0.00232</td><td>0.00261</td><td>0.00297</td></tr>
+              <tr><td style="text-align:left !important;">Sinusoidal</td><td>0.000360</td><td>0.00161</td><td>0.00248</td><td>0.00321</td><td>0.00410</td></tr>
+              <tr><td style="text-align:left !important;">Zero</td><td>0.000150</td><td>0.00484</td><td>0.00776</td><td>0.00961</td><td>0.01154</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <p class="table-caption has-text-centered">
+            Increasing the history length to $T = 32$ consistently reduces prediction error on controller-based inputs through $H = 24$. At $H = 32$ the two are comparable on those inputs (mean RMSE $0.00321$ vs. $0.00341$), but the longer history helps clearly on unseen nonzero open-loop inputs, cutting their mean $H = 32$ RMSE from $0.00615$ to $0.00333$ &mdash; about a $46\%$ reduction. The zero-action input is the exception, where both accumulate similar long-horizon error.
           </p>
         </div>
       </div>
