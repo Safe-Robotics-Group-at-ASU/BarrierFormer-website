@@ -151,15 +151,13 @@
           <div class="column has-text-centered">
             <div class="publication-links">
               <!-- PDF Link. -->
-              <!-- TO RELEASE: restore the href below and drop `button-coming-soon`,
-                   then change the label back to "Paper".
-                   <a href="./files/BarrierFormer.pdf" ...> -->
               <span class="link-block">
-                <a class="external-link button is-normal is-rounded is-dark button-coming-soon">
+                <a href="./files/BarrierFormer.pdf"
+                   class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                       <i class="fas fa-file-pdf"></i>
                   </span>
-                  <span>Paper (Coming Soon)</span>
+                  <span>Paper</span>
                 </a>
               </span>
               <!-- TO RELEASE: add href="<arXiv abstract URL>", drop `button-coming-soon`,
@@ -183,14 +181,13 @@
                 </a>
               </span> -->
               <!-- Code Link. -->
-              <!-- TO RELEASE: add href="<code release URL>", drop `button-coming-soon`,
-                   and change the label back to "Code". -->
               <span class="link-block">
-                <a class="external-link button is-normal is-rounded is-dark button-coming-soon">
+                <a href="https://github.com/Safe-Robotics-Group-at-ASU/BarrierFormer"
+                   class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                       <i class="fab fa-github"></i>
                   </span>
-                  <span>Code (Coming Soon)</span>
+                  <span>Code</span>
                   </a>
               </span>
             </div>
@@ -206,7 +203,7 @@
   <div class="container is-max-desktop">
     <div class="hero-body">
       <div class="hero-body">
-        <h2 class="title is-4">BarrierFormer operates in two steps during training. In Step 1, a causal transformer autoregressively generates a finite-horizon predictive rollout via the actor and dynamics heads. In Step 2, a barrier critic $h_\phi$ evaluates discrete-time CBF constraint violations along the predicted observations.</h2>
+        <h2 class="title is-4">Overview of BarrierFormer. In Step 1, a causal transformer autoregressively generates a finite-horizon predictive rollout via the action and dynamics heads, reconstructing each predicted observation as $\hat{\mathbf{o}} = o(\hat{\mathbf{x}})$. In Step 2, a barrier critic $h_\phi$ evaluates DTCBF constraint violations along those predicted observations.</h2>
         <center>
           <img width=100% src="./figs/barrierformer_overview.png">
         </center>
@@ -262,16 +259,18 @@
               <ul>
                 <li>
                   <b>Problem setting:</b>
-                  The agent follows $x_{t+1} = f(x_t) + g(x_t) u_t$ but observes only its own state, the goal-relative position, and radius-limited LiDAR returns. The policy sees just the observation-action history $\mathcal{H}_t$ of length $K$, and must reach the goal while keeping $d(p_t, R_j) \geq r$ for every obstacle.
+                  The agent follows $\mathbf{x}_{t+1} = f(\mathbf{x}_t) + g(\mathbf{x}_t)\mathbf{u}_t$ but observes only
+                  $\mathbf{o}_t = o(\mathbf{x}_t) = (\mathbf{x}_t,\; \mathbf{p}_\text{goal} - \mathbf{p}_t,\; \mathbf{y}_{t,1}, \ldots, \mathbf{y}_{t,n_\text{rays}})$ &mdash;
+                  its own state, the goal-relative position, and per-ray LiDAR features. The policy sees just the observation-action history $\mathcal{H}_t$ of length $T$, and must both stay safe, $d(\mathbf{p}_t, \mathcal{O}_i) \geq r$ for all $M$ obstacles, and reach the goal, $\inf_{t \geq 0} \|\mathbf{p}_t - \mathbf{p}_\text{goal}\| = 0$.
                 </li>
                 <li>
                   <b>Why pointwise CBFs fall short:</b>
-                  The condition $h(F(x,u)) - h(x) + \alpha(h(x)) \geq 0$ constrains a single transition, so satisfying it at every step can still drive the system into a state where no safe action remains. BarrierFormer instead enforces
-                  $h_\phi(\hat{x}_{t+k+1}) \geq (1-\gamma)\, h_\phi(\hat{x}_{t+k})$ across a horizon $k = 0, \ldots, H-1$.
+                  The DTCBF condition $h(\mathbf{o}^+) - h(\mathbf{o}) \geq -\alpha(h(\mathbf{o}))$ constrains a single transition, so satisfying it at every step can still drive the system into a state where no safe action remains. BarrierFormer instead enforces
+                  $h(\mathbf{o}_{t+k+1}) \geq (1-\gamma)\, h(\mathbf{o}_{t+k})$ across a horizon $k = 0, \ldots, H-1$. Note the barrier is defined on <i>observations</i>, not full states.
                 </li>
                 <li>
                   <b>Step 1 &mdash; Autoregressive rollout:</b>
-                  A GPT-2-style causal transformer encodes $\mathcal{H}_t$ into a latent $z_t$ feeding two heads: an <i>actor head</i> that outputs a residual correction to a nominal controller $\mu_\text{nom}$, and a <i>dynamics head</i> that predicts a state increment. Iterating the two generates the predictive rollout &mdash; standing in for the model that MPC would require.
+                  A GPT-2-style causal transformer encodes $\mathcal{H}_t$ into a latent $\mathbf{z}_t$ feeding two heads: an <i>action head</i> that outputs a residual correction to a nominal controller $\mu_\text{nom}$, and a <i>dynamics head</i> that predicts a state increment. Each predicted state is mapped back through the observation model, $\hat{\mathbf{o}} = o(\hat{\mathbf{x}})$, using only obstacles encountered so far &mdash; no global map. Iterating this generates the predictive rollout, standing in for the model that MPC would require.
                 </li>
                 <li>
                   <b>Step 2 &mdash; Barrier critic:</b>
@@ -279,11 +278,11 @@
                 </li>
                 <li>
                   <b>SQP safety teacher:</b>
-                  A sequential quadratic program computes the minimal correction to $\mu_\text{nom}$ that satisfies every horizon barrier constraint. Only its first action is kept, as the supervision target for the actor head. It runs during training only.
+                  A sequential quadratic program computes the minimal correction to $\mu_\text{nom}$ that satisfies every horizon barrier constraint. Only its first action is kept, as the supervision target for the action head. It runs during training only.
                 </li>
                 <li>
                   <b>Data labeling:</b>
-                  Because a collision-free state can still be doomed, a state is labeled safe only if it <i>and</i> the next $T_\text{label} = 32$ states are all collision-free; states in collision are labeled unsafe, and the rest stay unlabeled.
+                  Because a collision-free state can still be doomed, labels come from the states that <i>follow</i> an observation in the same stored rollout: an observation is safe only if its state and all subsequent $T_\text{label} = 32$ steps are collision-free, unsafe if the state is in collision, and otherwise left unlabelled.
                 </li>
                 <li>
                   <b>Training and deployment:</b>
@@ -366,7 +365,7 @@
           <br><br>
 
           <b>
-            Performance comparison in terms of safety rate (Safe), goal reaching rate (Reach), and per-step computational time (Time). <b>Ours (Dyn-Head)</b> generates predictive rollouts with the learned dynamics head, while <b>Ours (Sim)</b> uses the true simulator during training. Among model-free methods, Ours (Dyn-Head) achieves the best balance between safety and goal-reaching with competitive inference time. Among model-based methods, Ours (Sim) matches MPC while reducing per-step inference time by over <b>three orders of magnitude</b>.
+            Performance comparison in terms of safety rate (Safe), goal reaching rate (Reach), success rate (Success) and per-step computational time (Time). <b>Ours (Dyn-Head)</b> generates predictive rollouts with the learned dynamics head, while <b>Ours (Sim)</b> uses the true simulator during training. Among model-free methods, Ours (Dyn-Head) achieves the best balance between safety and goal-reaching with competitive inference time. Among model-based methods, Ours (Sim) matches MPC while reducing per-step inference time by over <b>three orders of magnitude</b>.
           </b>
 
           <div class="table-scroll">
@@ -389,90 +388,81 @@
             </thead>
             <tbody>
               <tr>
-                <td rowspan="3"><b>DI</b></td>
+                <td rowspan="4"><b>DI</b></td>
                 <td>Safe</td>
-                <td>55.21 &plusmn; 11.51</td>
-                <td>76.04 &plusmn; 3.90</td>
-                <td>72.9 &plusmn; 8.2</td>
+                <td>67.71 &plusmn; 2.95</td><td>76.04 &plusmn; 3.90</td><td>72.9 &plusmn; 8.20</td>
                 <td><b>95.83 &plusmn; 1.47</b></td>
-                <td><b>98.96 &plusmn; 1.47</b></td>
-                <td><b>98.96 &plusmn; 1.47</b></td>
+                <td><b>98.96 &plusmn; 1.47</b></td><td><b>98.96 &plusmn; 1.47</b></td>
               </tr>
               <tr>
                 <td>Reach</td>
-                <td>47.92 &plusmn; 11.51</td>
-                <td>26.04 &plusmn; 7.80</td>
-                <td><b>94.8 &plusmn; 1.5</b></td>
+                <td>67.71 &plusmn; 2.95</td><td>26.04 &plusmn; 7.80</td><td><b>94.8 &plusmn; 1.50</b></td>
                 <td>89.58 &plusmn; 6.42</td>
-                <td><b>96.86 &plusmn; 2.55</b></td>
-                <td>87.50 &plusmn; 4.42</td>
+                <td><b>96.88 &plusmn; 2.55</b></td><td>87.50 &plusmn; 4.42</td>
+              </tr>
+              <tr>
+                <td>Success</td>
+                <td>67.71 &plusmn; 2.95</td><td>21.88 &plusmn; 5.10</td><td>68.8 &plusmn; 6.80</td>
+                <td><b>88.54 &plusmn; 6.42</b></td>
+                <td><b>95.83 &plusmn; 1.47</b></td><td>86.46 &plusmn; 3.90</td>
               </tr>
               <tr>
                 <td>Time (&mu;s)</td>
-                <td>9.24 &plusmn; 0.36</td>
-                <td>&ndash;<sup>&dagger;</sup></td>
-                <td>6.63 &plusmn; 0.04</td>
+                <td>9.24 &plusmn; 0.36</td><td>&ndash;<sup>&dagger;</sup></td><td>6.63 &plusmn; 0.04</td>
                 <td><b>4.99 &plusmn; 0.02</b></td>
-                <td>8256 &plusmn; 900</td>
-                <td><b>4.96 &plusmn; 0.03</b></td>
+                <td>8256 &plusmn; 900</td><td><b>4.96 &plusmn; 0.03</b></td>
               </tr>
 
               <tr>
-                <td rowspan="3"><b>DC</b></td>
+                <td rowspan="4"><b>DC</b></td>
                 <td>Safe</td>
-                <td>23.96 &plusmn; 6.42</td>
-                <td>70.83 &plusmn; 3.90</td>
-                <td>64.6 &plusmn; 13.1</td>
+                <td>56.25 &plusmn; 5.10</td><td>70.83 &plusmn; 3.90</td><td>64.6 &plusmn; 13.10</td>
                 <td><b>95.83 &plusmn; 2.95</b></td>
-                <td><b>97.92 &plusmn; 1.47</b></td>
-                <td><b>97.92 &plusmn; 1.47</b></td>
+                <td><b>97.92 &plusmn; 1.47</b></td><td><b>97.92 &plusmn; 1.47</b></td>
               </tr>
               <tr>
                 <td>Reach</td>
-                <td>25.00 &plusmn; 6.75</td>
-                <td>2.08 &plusmn; 2.95</td>
-                <td>27.1 &plusmn; 3.9</td>
+                <td>52.08 &plusmn; 3.90</td><td>2.08 &plusmn; 2.95</td><td>27.1 &plusmn; 3.90</td>
                 <td><b>92.71 &plusmn; 2.95</b></td>
-                <td><b>95.83 &plusmn; 1.47</b></td>
-                <td>93.75 &plusmn; 4.42</td>
+                <td><b>95.83 &plusmn; 1.47</b></td><td>93.75 &plusmn; 1.42</td>
+              </tr>
+              <tr>
+                <td>Success</td>
+                <td>52.08 &plusmn; 3.90</td><td>2.08 &plusmn; 2.95</td><td>21.9 &plusmn; 2.60</td>
+                <td><b>92.71 &plusmn; 2.95</b></td>
+                <td><b>94.79 &plusmn; 1.47</b></td><td>93.75 &plusmn; 4.42</td>
               </tr>
               <tr>
                 <td>Time (&mu;s)</td>
-                <td>9.90 &plusmn; 0.21</td>
-                <td>&ndash;<sup>&dagger;</sup></td>
-                <td>6.70 &plusmn; 0.02</td>
+                <td>9.90 &plusmn; 0.21</td><td>&ndash;<sup>&dagger;</sup></td><td>6.70 &plusmn; 0.02</td>
                 <td><b>4.79 &plusmn; 0.01</b></td>
-                <td>9280 &plusmn; 1262</td>
-                <td><b>4.82 &plusmn; 0.04</b></td>
+                <td>9280 &plusmn; 1262</td><td><b>4.82 &plusmn; 0.04</b></td>
               </tr>
 
               <tr>
-                <td rowspan="3"><b>CF</b></td>
+                <td rowspan="4"><b>CF</b></td>
                 <td>Safe</td>
-                <td>88.54 &plusmn; 2.95</td>
-                <td><b>99.83 &plusmn; 0.01</b></td>
-                <td>91.7 &plusmn; 5.9</td>
+                <td>88.54 &plusmn; 2.95</td><td><b>98.96 &plusmn; 1.80</b></td><td>91.7 &plusmn; 5.90</td>
                 <td>96.88 &plusmn; 2.55</td>
-                <td><b>93.75 &plusmn; 0.00</b></td>
-                <td><b>93.75 &plusmn; 2.55</b></td>
+                <td><b>93.75 &plusmn; 0.00</b></td><td><b>93.75 &plusmn; 2.55</b></td>
               </tr>
               <tr>
                 <td>Reach</td>
-                <td>85.42 &plusmn; 2.95</td>
-                <td>0.00 &plusmn; 0.00</td>
-                <td><b>96.9 &plusmn; 2.6</b></td>
+                <td>85.42 &plusmn; 3.90</td><td>0.00 &plusmn; 0.00</td><td><b>96.9 &plusmn; 2.60</b></td>
                 <td>92.71 &plusmn; 3.90</td>
-                <td><b>100.00 &plusmn; 0.00</b></td>
-                <td>94.79 &plusmn; 5.31</td>
+                <td><b>100.00 &plusmn; 0.00</b></td><td>94.79 &plusmn; 5.31</td>
+              </tr>
+              <tr>
+                <td>Success</td>
+                <td>85.42 &plusmn; 3.90</td><td>0.00 &plusmn; 0.00</td><td>88.5 &plusmn; 3.90</td>
+                <td><b>89.58 &plusmn; 8.20</b></td>
+                <td><b>93.75 &plusmn; 0.00</b></td><td>88.54 &plusmn; 7.37</td>
               </tr>
               <tr>
                 <td>Time (&mu;s)</td>
-                <td>9.51 &plusmn; 0.38</td>
-                <td>&ndash;<sup>&dagger;</sup></td>
-                <td>8.63 &plusmn; 0.03</td>
+                <td>9.51 &plusmn; 0.38</td><td>&ndash;<sup>&dagger;</sup></td><td>8.63 &plusmn; 0.03</td>
                 <td><b>5.12 &plusmn; 0.04</b></td>
-                <td>2773 &plusmn; 103</td>
-                <td><b>5.08 &plusmn; 0.03</b></td>
+                <td>2773 &plusmn; 103</td><td><b>5.08 &plusmn; 0.03</b></td>
               </tr>
             </tbody>
           </table>
@@ -486,99 +476,9 @@
       <div class="content">
         <div class="content has-text-justified">
           <b>
-            Zero-shot generalization across increased obstacle density $\rho$, defined as $N_\text{obs}/l^2$ for DI and DC and $N_\text{obs}/l^3$ for CF. The DI and DC models are trained with area size $l = 4$ and $N_\text{obs} = 8$, and the CF model with $l = 3$ and $N_\text{obs} = 6$; no retraining is performed. Both variants maintain competitive safety and success rates as the workspace scales, suggesting that the learned barrier critic generalizes to unseen obstacle configurations and larger environments.
+            Zero-shot generalization across obstacle densities and workspace sizes.
           </b>
-
-          <div class="table-scroll">
-          <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
-            <thead>
-              <tr>
-                <th rowspan="2">Env.</th>
-                <th rowspan="2">$\rho$</th>
-                <th rowspan="2"># Obs</th>
-                <th colspan="2">Safety Rate</th>
-                <th colspan="2">Reaching Rate</th>
-                <th colspan="2">Success Rate</th>
-              </tr>
-              <tr>
-                <th>Sim</th>
-                <th>Dyn-Head</th>
-                <th>Sim</th>
-                <th>Dyn-Head</th>
-                <th>Sim</th>
-                <th>Dyn-Head</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td rowspan="3"><b>DI</b></td>
-                <td>0.50</td><td>8</td>
-                <td>98.96 &plusmn; 1.47</td><td>94.79 &plusmn; 3.90</td>
-                <td>96.88 &plusmn; 2.55</td><td>93.75 &plusmn; 4.42</td>
-                <td>95.83 &plusmn; 2.95</td><td>89.58 &plusmn; 3.90</td>
-              </tr>
-              <tr>
-                <td>0.75</td><td>12</td>
-                <td>97.92 &plusmn; 2.95</td><td>92.71 &plusmn; 5.31</td>
-                <td>95.83 &plusmn; 3.90</td><td>92.71 &plusmn; 5.31</td>
-                <td>93.75 &plusmn; 4.42</td><td>86.46 &plusmn; 5.89</td>
-              </tr>
-              <tr>
-                <td>1.00</td><td>16</td>
-                <td>94.79 &plusmn; 3.90</td><td>91.67 &plusmn; 5.31</td>
-                <td>93.75 &plusmn; 4.42</td><td>90.62 &plusmn; 6.75</td>
-                <td>88.54 &plusmn; 5.31</td><td>83.33 &plusmn; 8.96</td>
-              </tr>
-
-              <tr>
-                <td rowspan="3"><b>DC</b></td>
-                <td>0.50</td><td>8</td>
-                <td>97.92 &plusmn; 2.95</td><td>96.88 &plusmn; 2.55</td>
-                <td>91.67 &plusmn; 6.42</td><td>87.50 &plusmn; 4.42</td>
-                <td>91.67 &plusmn; 6.42</td><td>87.50 &plusmn; 4.42</td>
-              </tr>
-              <tr>
-                <td>0.75</td><td>12</td>
-                <td>97.92 &plusmn; 2.95</td><td>94.79 &plusmn; 3.90</td>
-                <td>88.54 &plusmn; 5.31</td><td>84.38 &plusmn; 5.10</td>
-                <td>88.54 &plusmn; 5.31</td><td>83.33 &plusmn; 6.42</td>
-              </tr>
-              <tr>
-                <td>1.00</td><td>16</td>
-                <td>95.83 &plusmn; 1.47</td><td>93.75 &plusmn; 2.55</td>
-                <td>79.67 &plusmn; 5.31</td><td>77.08 &plusmn; 5.89</td>
-                <td>79.17 &plusmn; 5.31</td><td>77.08 &plusmn; 5.89</td>
-              </tr>
-
-              <tr>
-                <td rowspan="3"><b>CF</b></td>
-                <td>0.50</td><td>13</td>
-                <td>90.62 &plusmn; 5.10</td><td>91.67 &plusmn; 3.90</td>
-                <td>92.71 &plusmn; 5.89</td><td>89.58 &plusmn; 3.90</td>
-                <td>84.38 &plusmn; 9.20</td><td>81.25 &plusmn; 6.75</td>
-              </tr>
-              <tr>
-                <td>0.75</td><td>20</td>
-                <td>86.46 &plusmn; 5.31</td><td>87.50 &plusmn; 2.55</td>
-                <td>93.75 &plusmn; 6.75</td><td>89.58 &plusmn; 5.31</td>
-                <td>82.29 &plusmn; 8.20</td><td>79.17 &plusmn; 5.89</td>
-              </tr>
-              <tr>
-                <td>1.00</td><td>27</td>
-                <td>80.21 &plusmn; 9.66</td><td>86.46 &plusmn; 5.31</td>
-                <td>94.79 &plusmn; 5.31</td><td>84.38 &plusmn; 4.42</td>
-                <td>77.08 &plusmn; 12.06</td><td>75.00 &plusmn; 6.75</td>
-              </tr>
-            </tbody>
-          </table>
-          </div>
-          <p class="table-caption has-text-centered">
-            Mean &plusmn; std over 32 environments and 3 seeds, 1024 timesteps.
-          </p>
-
-          <b>
-            Zero-shot generalization to larger and denser environments across two axes of out-of-distribution difficulty: obstacle density $\rho \in \{0.50, 0.75, 1.00\}$ and workspace size $l \in \{4, 6\}$ for DI and DC, and $l \in \{3, 4\}$ for CF. Rows are the dynamics (DI, DC, CF); columns are safety, reaching, and success rate. Each (seed, episode) instance is initialized at the highest density and lower-density variants are derived from the same instance by removing a random subset of obstacles, so that density is the sole varying factor.
-          </b>
+          Obstacle density is $\rho = M/l^{n_p}$, where $M$ is the number of obstacles and $n_p \in \{2,3\}$ is the dimension of the position space. Models are trained <i>only</i> at $\rho = 0.50$ and the smaller workspace &mdash; $l = 4$ for DI and DC, $l = 3$ for CF &mdash; and evaluated without retraining at $\rho \in \{0.50, 0.75, 1.00\}$ and $l \in \{4, 6\}$ (DI, DC) or $l \in \{3, 4\}$ (CF). To ensure a controlled, paired comparison, each instance is initialized at the highest density and lower-density variants are obtained by removing a random subset of obstacles while preserving the poses of all remaining ones, so density is the only factor that varies. Safety rates generally decrease with increasing density, as higher clutter reduces navigable space; at fixed density, performance generally decreases as the workspace grows, likely due to longer navigation paths and increased exposure to obstacles. Despite being trained only at the lowest density and smallest workspace, both variants retain substantial safety under these distribution shifts, with the largest drop when high density and a larger workspace are combined.
           <center>
             <img width=100% src="./figs/generalization.png">
           </center>
@@ -603,7 +503,7 @@
           <b>
             Every clip below comes from a policy trained only on a $4 \times 4$ workspace with 8 obstacles.
           </b>
-          Nothing is retrained or fine-tuned. Moving left to right increases obstacle density $\rho = N_\text{obs}/l^2$; moving down enlarges the workspace, which lengthens the path to the goal and increases exposure to obstacles over the episode. Episodes run for 1024 control steps. The $8 \times 8$ rows go beyond the $l \in \{4, 6\}$ range reported in Table&nbsp;2 and Fig.&nbsp;2 above.
+          Nothing is retrained or fine-tuned. Moving left to right increases obstacle density $\rho = M/l^{n_p}$; moving down enlarges the workspace, which lengthens the path to the goal and increases exposure to obstacles over the episode. Episodes run for 1024 control steps. The $8 \times 8$ rows go beyond the $l \in \{4, 6\}$ range reported in Fig.&nbsp;2 above.
         </div>
       </div>
 
@@ -742,9 +642,9 @@
       <div class="content">
         <div class="content has-text-justified">
           <b>
-            Effect of the predictive horizon $H$ on Double Integrator, with history length fixed at $K = 12$.
+            Effect of the predictive horizon $H$ on Double Integrator, with history length fixed at $T = 12$.
           </b>
-          The $H = 1$ setting corresponds to pointwise barrier supervision without multi-step predictive lookahead, and gives the lowest safety rate. Increasing the horizon from $H = 1$ to $H = 6$ improves safety from $83.33\%$ to $95.83\%$, showing the benefit of enforcing barrier constraints over predicted rollouts rather than only at the next step. Increasing $H$ further does not consistently help at fixed history length, because longer rollouts accumulate dynamics-head prediction error and introduce more linearized barrier constraints in the SQP subproblem. We therefore use $H = 6$ with $K = 12$ in the main experiments.
+          The $H = 1$ setting corresponds to pointwise barrier supervision without multi-step predictive rollout, and gives the lowest safety rate. Increasing the horizon from $H = 1$ to $H = 6$ improves safety from $83.33\%$ to $95.83\%$, demonstrating the benefit of enforcing barrier constraints over predicted rollouts rather than only at the next step. Increasing $H$ further does not consistently help when the history length is fixed, because longer rollouts accumulate dynamics-head prediction error and introduce more linearized barrier constraints in the SQP subproblem. We therefore use $H = 6$ with $T = 12$ in the main experiments.
 
           <div class="table-scroll">
           <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
@@ -752,9 +652,9 @@
               <tr>
                 <th>Method</th>
                 <th>$H$</th>
-                <th>Safety Rate</th>
-                <th>Reaching Rate</th>
-                <th>Success Rate</th>
+                <th>Safe</th>
+                <th>Reach</th>
+                <th>Success</th>
               </tr>
             </thead>
             <tbody>
@@ -780,16 +680,16 @@
           <b>
             Freezing the transformer backbone and dynamics head after Phase 1.
           </b>
-          The frozen variant trains only the actor head and barrier critic in Phase 2, while <i>Ours</i> denotes the full training setup. The frozen dynamics head accumulates prediction error as the actor diverges from the pretraining distribution, and because attention is also frozen, the latent $z_t$ cannot adapt to the shifting action distribution &mdash; yielding inaccurate rollouts for barrier constraint evaluation. This motivates joint online training of all components.
+          The frozen variant trains only the action head and barrier critic in Phase 2, while <i>Ours</i> denotes the full training setup. The frozen dynamics head accumulates prediction error as the action head’s distribution shifts away from the pretraining distribution, and because the backbone is also frozen, the latent $\mathbf{z}_t$ cannot adapt &mdash; yielding inaccurate rollouts for barrier constraint evaluation. This motivates joint online training of all components.
 
           <div class="table-scroll">
           <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
             <thead>
               <tr>
                 <th rowspan="2">Env.</th>
-                <th colspan="2">Safety Rate</th>
-                <th colspan="2">Reaching Rate</th>
-                <th colspan="2">Success Rate</th>
+                <th colspan="2">Safe</th>
+                <th colspan="2">Reach</th>
+                <th colspan="2">Success</th>
               </tr>
               <tr>
                 <th>Frozen</th><th>Ours</th>
@@ -820,7 +720,7 @@
           </table>
           </div>
           <p class="table-caption has-text-centered">
-            Mean &plusmn; std over 32 environments and 3 seeds. Best mean values are bolded.
+            Mean &plusmn; standard deviation across 3 seeds, with each seed evaluated on 32 environments. Best mean values are bolded.
           </p>
         </div>
       </div>
@@ -830,7 +730,7 @@
           <b>
             Robustness to dynamics perturbations on Double Integrator.
           </b>
-          All policies are trained on the unperturbed dynamics and evaluated without retraining, under a parametric velocity mismatch $\dot{p} = \alpha v$ and state-wise scaled process noise $\dot{x} = f(x,u) + w$, $w \sim \mathcal{N}(0, \Sigma_\sigma)$. Safety remains high across all tested $\alpha$; the lower reaching rate at $\alpha = 0.8$ is expected, since the robot moves more slowly and more often hits the episode time limit. Additive process noise is more challenging: safety stays above $92\%$ for moderate noise but degrades as the disturbance grows. The longer-history variant ($K = 32$, $H = 18$) tolerates larger noise better than the default. These are empirical robustness tests, not formal robust safety guarantees.
+          All policies are trained on the unperturbed dynamics and evaluated without retraining, under a parametric velocity mismatch $\dot{\mathbf{p}} = \alpha_\text{vel}\mathbf{v}$ and state-wise scaled process noise $\dot{\mathbf{x}} = f(\mathbf{x},\mathbf{u}) + \mathbf{w}$, $\mathbf{w} \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Sigma}_w)$. Under velocity mismatch the safety rate stays high across all tested $\alpha_\text{vel}$; the lower reaching rate at $\alpha_\text{vel} = 0.8$ is expected, since the robot moves more slowly and more often hits the episode time limit before arriving. Additive process noise is more challenging: safety remains above $92\%$ for $\sigma \leq 0.0025$ but drops as the disturbance magnitude increases. These are empirical robustness tests, not formal robust safety guarantees.
 
           <div class="table-scroll">
           <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
@@ -838,38 +738,36 @@
               <tr>
                 <th rowspan="2">Perturbation</th>
                 <th rowspan="2">Value</th>
-                <th colspan="3">$K = 12,\ H = 6$</th>
-                <th colspan="3">$K = 32,\ H = 18$</th>
+                <th colspan="3">$T = 12,\ H = 6$</th>
               </tr>
               <tr>
-                <th>Safe</th><th>Reach</th><th>Success</th>
                 <th>Safe</th><th>Reach</th><th>Success</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td rowspan="5">$\dot{p} = \alpha v$</td>
-                <td>0.8</td><td>95.84</td><td>75.00</td><td>73.96</td><td>94.79</td><td>78.13</td><td>75.00</td>
+                <td rowspan="5">$\dot{\mathbf{p}} = \alpha_\text{vel}\mathbf{v}$</td>
+                <td>0.8</td><td>95.84</td><td>75.00</td><td>73.96</td>
               </tr>
-              <tr><td>0.9</td><td>96.88</td><td>84.37</td><td>84.37</td><td>95.83</td><td>86.46</td><td>84.38</td></tr>
-              <tr><td>1.0</td><td>96.88</td><td>89.58</td><td>88.54</td><td>97.92</td><td>90.63</td><td>89.58</td></tr>
-              <tr><td>1.1</td><td>95.83</td><td>96.88</td><td>93.75</td><td>97.92</td><td>94.79</td><td>93.75</td></tr>
-              <tr><td>1.2</td><td>95.83</td><td>96.88</td><td>92.71</td><td>94.79</td><td>96.88</td><td>92.71</td></tr>
+              <tr><td>0.9</td><td>96.88</td><td>84.37</td><td>84.37</td></tr>
+              <tr><td>1.0</td><td>96.88</td><td>89.58</td><td>88.54</td></tr>
+              <tr><td>1.1</td><td>95.83</td><td>96.88</td><td>93.75</td></tr>
+              <tr><td>1.2</td><td>95.83</td><td>96.88</td><td>92.71</td></tr>
 
               <tr>
-                <td rowspan="6">$\dot{x} = f(x,u) + w$</td>
-                <td>$\sigma = 0$</td><td>96.88</td><td>89.58</td><td>88.54</td><td>97.92</td><td>90.63</td><td>89.58</td>
+                <td rowspan="6">$\dot{\mathbf{x}} = f(\mathbf{x},\mathbf{u}) + \mathbf{w}$</td>
+                <td>$\sigma = 0$</td><td>96.88</td><td>89.58</td><td>88.54</td>
               </tr>
-              <tr><td>$\sigma = 0.001$</td><td>98.96</td><td>89.58</td><td>89.58</td><td>95.83</td><td>89.58</td><td>88.54</td></tr>
-              <tr><td>$\sigma = 0.0025$</td><td>92.71</td><td>86.46</td><td>83.33</td><td>91.67</td><td>88.54</td><td>84.38</td></tr>
-              <tr><td>$\sigma = 0.005$</td><td>73.96</td><td>82.29</td><td>68.75</td><td>76.04</td><td>84.38</td><td>72.92</td></tr>
-              <tr><td>$\sigma = 0.0075$</td><td>53.12</td><td>79.17</td><td>50.00</td><td>63.54</td><td>83.33</td><td>61.46</td></tr>
-              <tr><td>$\sigma = 0.01$</td><td>42.71</td><td>78.13</td><td>38.54</td><td>46.88</td><td>77.08</td><td>43.75</td></tr>
+              <tr><td>$\sigma = 0.001$</td><td>98.96</td><td>89.58</td><td>89.58</td></tr>
+              <tr><td>$\sigma = 0.0025$</td><td>92.71</td><td>86.46</td><td>83.33</td></tr>
+              <tr><td>$\sigma = 0.005$</td><td>73.96</td><td>82.29</td><td>68.75</td></tr>
+              <tr><td>$\sigma = 0.0075$</td><td>53.12</td><td>79.17</td><td>50.00</td></tr>
+              <tr><td>$\sigma = 0.01$</td><td>42.71</td><td>78.13</td><td>38.54</td></tr>
             </tbody>
           </table>
           </div>
           <p class="table-caption has-text-centered">
-            Rates reported as percentages over 3 seeds and 32 environments.
+            Rates reported as percentages over 3 seeds with 32 environments per seed. For process noise, $\sigma_p = \sigma_v = \sigma$.
           </p>
         </div>
       </div>
