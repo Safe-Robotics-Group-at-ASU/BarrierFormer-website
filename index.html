@@ -84,6 +84,12 @@
     .results-table tr.rmse-sep td {
       border-top: 2px solid #b5b5b5 !important;
     }
+    /* Justified text stretches word gaps around inline MathJax spans, which
+       makes the equations look broken. Left-align the prose that carries math. */
+    .content.has-text-justified,
+    .content.has-text-justified li {
+      text-align: left !important;
+    }
     /* Placeholder buttons for artifacts that are not released yet. */
     .button-coming-soon {
       opacity: 0.55;
@@ -264,7 +270,7 @@
                 <li>
                   <b>Problem setting:</b>
                   The agent follows $\mathbf{x}_{t+1} = f(\mathbf{x}_t) + g(\mathbf{x}_t)\mathbf{u}_t$ but observes only
-                  $\mathbf{o}_t = o(\mathbf{x}_t) = (\mathbf{x}_t,\; \mathbf{p}_\text{goal} - \mathbf{p}_t,\; \mathbf{y}_{t,1}, \ldots, \mathbf{y}_{t,n_\text{rays}})$ &mdash;
+                  $\mathbf{o}_t = o(\mathbf{x}_t) = (\mathbf{x}_t,\; \mathbf{p}_\text{goal} - \mathbf{p}_t,\; \mathbf{y}_{t,1}, \ldots, \mathbf{y}_{t,n_\text{rays}})$:
                   its own state, the goal-relative position, and per-ray LiDAR features. The policy sees just the observation-action history $\mathcal{H}_t$ of length $T$, and must both stay safe, $d(\mathbf{p}_t, \mathcal{O}_i) \geq r$ for all $M$ obstacles, and reach the goal, $\inf_{t \geq 0} \|\mathbf{p}_t - \mathbf{p}_\text{goal}\| = 0$.
                 </li>
                 <li>
@@ -273,11 +279,11 @@
                   $h(\mathbf{o}_{t+k+1}) \geq (1-\gamma)\, h(\mathbf{o}_{t+k})$ across a horizon $k = 0, \ldots, H-1$. Note the barrier is defined on <i>observations</i>, not full states.
                 </li>
                 <li>
-                  <b>Step 1 &mdash; Autoregressive rollout:</b>
-                  A GPT-2-style causal transformer encodes $\mathcal{H}_t$ into a latent $\mathbf{z}_t$ feeding two heads: an <i>action head</i> that outputs a residual correction to a nominal controller $\mu_\text{nom}$, and a <i>dynamics head</i> that predicts a state increment. Each predicted state is mapped back through the observation model, $\hat{\mathbf{o}} = o(\hat{\mathbf{x}})$, using only obstacles encountered so far &mdash; no global map. Iterating this generates the predictive rollout, standing in for the model that MPC would require.
+                  <b>Step 1: Autoregressive rollout.</b>
+                  A GPT-2-style causal transformer encodes $\mathcal{H}_t$ into a latent $\mathbf{z}_t$ feeding two heads: an <i>action head</i> that outputs a residual correction to a nominal controller $\mu_\text{nom}$, and a <i>dynamics head</i> that predicts a state increment. Each predicted state is mapped back through the observation model, $\hat{\mathbf{o}} = o(\hat{\mathbf{x}})$, using only obstacles encountered so far, not a global map. Iterating this generates the predictive rollout, standing in for the model that MPC would require.
                 </li>
                 <li>
-                  <b>Step 2 &mdash; Barrier critic:</b>
+                  <b>Step 2: Barrier critic.</b>
                   A critic $h_\phi$ maps each predicted <i>observation</i> to a barrier value, which is what makes it usable under partial observability. Per-step violations are aggregated across the horizon by a smooth log-sum-exp of the worst case.
                 </li>
                 <li>
@@ -290,7 +296,7 @@
                 </li>
                 <li>
                   <b>Training and deployment:</b>
-                  All components train jointly under actor, dynamics, and barrier losses. <b>At deployment, Step 2 is gone</b>: the transformer maps history straight to actions &mdash; no SQP, no rollout, no online optimization, no model.
+                  All components train jointly under actor, dynamics, and barrier losses. <b>At deployment, Step 2 is gone</b>: the transformer maps history straight to actions, with no SQP, no rollout, no online optimization, and no model.
                 </li>
               </ul>
           </ul>
@@ -314,7 +320,7 @@
           <b>
             The predictive horizon, visualized.
           </b>
-          The left panel shows the full workspace: the agent (blue) executes the trajectory in solid blue toward the goal (green star), while the <span style="color:#e07b17"><b>orange dashed line</b></span> is the $H = 6$ step plan predicted by the transformer at that instant. The right panel zooms in on the agent, showing its LiDAR rays and the numbered steps of that predicted plan. This rollout is what the barrier critic evaluates during training &mdash; and it is precisely what a myopic, single-step CBF never looks at.
+          The left panel shows the full workspace: the agent (blue) executes the trajectory in solid blue toward the goal (green star), while the <span style="color:#e07b17"><b>orange dashed line</b></span> is the $H = 6$ step plan predicted by the transformer at that instant. The right panel zooms in on the agent, showing its LiDAR rays and the numbered steps of that predicted plan. This rollout is what the barrier critic evaluates during training, and it is precisely what a myopic, single-step CBF never looks at.
           <center>
             <video width="100%" muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
               <source src="./vids/predictive_horizon_di.mp4" type="video/mp4">
@@ -329,7 +335,7 @@
           <b>
             BarrierFormer on the training distribution ($l = 4$ workspace, 8 obstacles).
           </b>
-          The agent perceives obstacles only through LiDAR rays within its sensing radius $R = 0.5$ and has no prior knowledge of obstacle locations. Safety is enforced purely by the policy parameters &mdash; no safety filter, no online optimization, and no model at inference.
+          The agent perceives obstacles only through LiDAR rays within its sensing radius $R = 0.5$ and has no prior knowledge of obstacle locations. Safety is enforced purely by the policy parameters, with no safety filter, no online optimization, and no model at inference.
         </div>
 
         <div class="columns is-centered video-grid">
@@ -482,7 +488,7 @@
           <b>
             Zero-shot generalization across obstacle densities and workspace sizes.
           </b>
-          Obstacle density is $\rho = M/l^{n_p}$, where $M$ is the number of obstacles and $n_p \in \{2,3\}$ is the dimension of the position space. Models are trained <i>only</i> at the smaller workspace and lowest density &mdash; $l = 4$ with $M = 8$ for DI and DC, giving $\rho = 0.50$, and $l = 3$ with $M = 6$ for Crazyflie, giving $\rho = 6/27 \approx 0.22$ &mdash; then evaluated without retraining at $\rho \in \{0.50, 0.75, 1.00\}$ and $l \in \{4, 6\}$ (DI, DC) or $l \in \{3, 4\}$ (CF). Note that every Crazyflie column is therefore out of distribution in density: even the sparsest evaluated setting, $M = 13$ at $l = 3$, is more than twice the training density. To ensure a controlled, paired comparison, each instance is initialized at the highest density and lower-density variants are obtained by removing a random subset of obstacles while preserving the poses of all remaining ones, so density is the only factor that varies. Safety rates generally decrease with increasing density, as higher clutter reduces navigable space; at fixed density, performance generally decreases as the workspace grows, likely due to longer navigation paths and increased exposure to obstacles. Both variants retain substantial safety under these distribution shifts, with the largest drop when high density and a larger workspace are combined.
+          Obstacle density is $\rho = M/l^{n_p}$, where $M$ is the number of obstacles and $n_p \in \{2,3\}$ is the dimension of the position space. Models are trained <i>only</i> at the smaller workspace and lowest density: $l = 4$ with $M = 8$ for DI and DC, giving $\rho = 0.50$, and $l = 3$ with $M = 6$ for Crazyflie, giving $\rho = 6/27 \approx 0.22$. They are then evaluated without retraining at $\rho \in \{0.50, 0.75, 1.00\}$ and $l \in \{4, 6\}$ (DI, DC) or $l \in \{3, 4\}$ (CF). Note that every Crazyflie column is therefore out of distribution in density: even the sparsest evaluated setting, $M = 13$ at $l = 3$, is more than twice the training density. To ensure a controlled, paired comparison, each instance is initialized at the highest density and lower-density variants are obtained by removing a random subset of obstacles while preserving the poses of all remaining ones, so density is the only factor that varies. Safety rates generally decrease with increasing density, as higher clutter reduces navigable space; at fixed density, performance generally decreases as the workspace grows, likely due to longer navigation paths and increased exposure to obstacles. Both variants retain substantial safety under these distribution shifts, with the largest drop when high density and a larger workspace are combined.
           <center>
             <img width=100% src="./figs/generalization.png">
           </center>
@@ -492,7 +498,7 @@
           <b>
             The same evaluation in numbers, at the training workspace size.
           </b>
-          The table below tabulates the smaller-workspace bars of Fig.&nbsp;2 &mdash; $l = 4$ for DI and DC, $l = 3$ for CF &mdash; across the three densities, for both the Sim and Dyn-Head variants.
+          The table below tabulates the smaller-workspace bars of Fig.&nbsp;2 ($l = 4$ for DI and DC, $l = 3$ for CF) across the three densities, for both the Sim and Dyn-Head variants.
 
           <div class="table-scroll">
           <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
@@ -605,7 +611,7 @@
       <!-- ---------- Double Integrator ---------- -->
       <h3 class="title is-4">Double Integrator</h3>
 
-      <p class="gen-row-head"><b>$4 \times 4$ workspace</b> &mdash; the training size</p>
+      <p class="gen-row-head"><b>$4 \times 4$ workspace</b> (the training size)</p>
       <div class="columns is-centered video-grid">
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
@@ -643,7 +649,7 @@
         </div>
       </div>
 
-      <p class="gen-row-head"><b>$8 \times 8$ workspace</b> &mdash; $4\times$ the training area</p>
+      <p class="gen-row-head"><b>$8 \times 8$ workspace</b> ($4\times$ the training area)</p>
       <div class="columns is-centered video-grid">
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
@@ -665,7 +671,7 @@
       <!-- ---------- Dubins Car ---------- -->
       <h3 class="title is-4" style="margin-top: 2.5rem;">Dubins Car</h3>
 
-      <p class="gen-row-head"><b>$4 \times 4$ workspace</b> &mdash; the training size</p>
+      <p class="gen-row-head"><b>$4 \times 4$ workspace</b> (the training size)</p>
       <div class="columns is-centered video-grid">
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
@@ -703,7 +709,7 @@
         </div>
       </div>
 
-      <p class="gen-row-head"><b>$8 \times 8$ workspace</b> &mdash; $4\times$ the training area</p>
+      <p class="gen-row-head"><b>$8 \times 8$ workspace</b> ($4\times$ the training area)</p>
       <div class="columns is-centered video-grid">
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
@@ -775,7 +781,7 @@
           <b>
             Freezing the transformer backbone and dynamics head after Phase 1.
           </b>
-          The frozen variant trains only the action head and barrier critic in Phase 2, while <i>Ours</i> denotes the full training setup. The frozen dynamics head accumulates prediction error as the action head’s distribution shifts away from the pretraining distribution, and because the backbone is also frozen, the latent $\mathbf{z}_t$ cannot adapt &mdash; yielding inaccurate rollouts for barrier constraint evaluation. This motivates joint online training of all components.
+          The frozen variant trains only the action head and barrier critic in Phase 2, while <i>Ours</i> denotes the full training setup. The frozen dynamics head accumulates prediction error as the action head’s distribution shifts away from the pretraining distribution, and because the backbone is also frozen, the latent $\mathbf{z}_t$ cannot adapt, yielding inaccurate rollouts for barrier constraint evaluation. This motivates joint online training of all components.
 
           <div class="table-scroll">
           <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
@@ -825,7 +831,7 @@
           <b>
             Dynamics-head rollout accuracy.
           </b>
-          Because the dynamics head is a learned model, its accuracy depends on the coverage of the (state, action) pairs it saw during pretraining. Phase 1 therefore pretrains on trajectories from three different control policies &mdash; GCBF+, a QP safety controller, and the nominal LQR controller &mdash; giving a training distribution that spans learned safe actions, optimization-based corrections and nominal control. Each pretrained dynamics head is then evaluated on 50 independently generated episodes of 256 steps per input signal. The $H = 1$ column is the one-step RMSE; the rest report autoregressive rollout RMSE over the horizon. The upper block of each table is closed-loop controller inputs, the lower block synthetic open-loop signals never encountered during pretraining.
+          Because the dynamics head is a learned model, its accuracy depends on the coverage of the (state, action) pairs it saw during pretraining. Phase 1 therefore pretrains on trajectories from three different control policies (GCBF+, a QP safety controller, and the nominal LQR controller), giving a training distribution that spans learned safe actions, optimization-based corrections and nominal control. Each pretrained dynamics head is then evaluated on 50 independently generated episodes of 256 steps per input signal. The $H = 1$ column is the one-step RMSE; the rest report autoregressive rollout RMSE over the horizon. The upper block of each table is closed-loop controller inputs, the lower block synthetic open-loop signals never encountered during pretraining.
 
           <p class="gen-row-head"><b>History length $T = 12$</b></p>
           <div class="table-scroll">
@@ -877,7 +883,7 @@
           </table>
           </div>
           <p class="table-caption has-text-centered">
-            Increasing the history length to $T = 32$ consistently reduces prediction error on controller-based inputs through $H = 24$. At $H = 32$ the two are comparable on those inputs (mean RMSE $0.00321$ vs. $0.00341$), but the longer history helps clearly on unseen nonzero open-loop inputs, cutting their mean $H = 32$ RMSE from $0.00615$ to $0.00333$ &mdash; about a $46\%$ reduction. The zero-action input is the exception, where both accumulate similar long-horizon error.
+            Increasing the history length to $T = 32$ consistently reduces prediction error on controller-based inputs through $H = 24$. At $H = 32$ the two are comparable on those inputs (mean RMSE $0.00321$ vs. $0.00341$), but the longer history helps clearly on unseen nonzero open-loop inputs, cutting their mean $H = 32$ RMSE from $0.00615$ to $0.00333$, about a $46\%$ reduction. The zero-action input is the exception, where both accumulate similar long-horizon error.
           </p>
         </div>
       </div>
