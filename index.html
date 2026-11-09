@@ -368,7 +368,7 @@
           <br><br>
 
           <b>
-            Performance comparison in terms of safety rate (Safe), goal reaching rate (Reach), success rate (Success) and per-step computational time (Time). <b>Ours (Dyn-Head)</b> generates predictive rollouts with the learned dynamics head, while <b>Ours (Sim)</b> uses the true simulator during training. Among model-free methods, Ours (Dyn-Head) achieves the best balance between safety and goal-reaching with competitive inference time. Among model-based methods, Ours (Sim) matches MPC while reducing per-step inference time by over <b>three orders of magnitude</b>.
+            Performance comparison in terms of safety rate (Safe), goal reaching rate (Reach), success rate (Success) and per-step computational time (Time). <b>Ours (Dyn-Head)</b> generates predictive rollouts with the learned dynamics head, while <b>Ours (Sim)</b> uses the true simulator during training. Among model-free methods, Ours (Dyn-Head) achieves the best balance between safety and goal-reaching with competitive inference time. Among model-based methods, Ours (Sim) matches or exceeds MPC's safety rate across all environments while reducing per-step computation time by <b>two to three orders of magnitude</b>.
           </b>
 
           <div class="table-scroll">
@@ -389,83 +389,59 @@
                 <th>Ours (Sim)</th>
               </tr>
             </thead>
-            <tbody>
+                        <tbody>
               <tr>
                 <td rowspan="4"><b>DI</b></td>
                 <td>Safe</td>
-                <td>67.71 &plusmn; 2.95</td><td>76.04 &plusmn; 3.90</td><td>72.9 &plusmn; 8.20</td>
-                <td><b>95.83 &plusmn; 1.47</b></td>
-                <td><b>98.96 &plusmn; 1.47</b></td><td><b>98.96 &plusmn; 1.47</b></td>
+                <td>67.71 &plusmn; 2.95</td><td>76.04 &plusmn; 3.90</td><td>72.9 &plusmn; 8.20</td><td><b>100.00 &plusmn; 0.00</b></td><td>98.96 &plusmn; 1.47</td><td><b>100.00 &plusmn; 0.00</b></td>
               </tr>
               <tr>
                 <td>Reach</td>
-                <td>67.71 &plusmn; 2.95</td><td>26.04 &plusmn; 7.80</td><td><b>94.8 &plusmn; 1.50</b></td>
-                <td>89.58 &plusmn; 6.42</td>
-                <td><b>96.88 &plusmn; 2.55</b></td><td>87.50 &plusmn; 4.42</td>
+                <td>67.71 &plusmn; 2.95</td><td>26.04 &plusmn; 7.80</td><td>94.8 &plusmn; 1.50</td><td><b>97.92 &plusmn; 3.61</b></td><td>96.86 &plusmn; 2.55</td><td><b>97.92 &plusmn; 3.61</b></td>
               </tr>
               <tr>
                 <td>Success</td>
-                <td>67.71 &plusmn; 2.95</td><td>21.88 &plusmn; 5.10</td><td>68.8 &plusmn; 6.80</td>
-                <td><b>88.54 &plusmn; 6.42</b></td>
-                <td><b>95.83 &plusmn; 1.47</b></td><td>86.46 &plusmn; 3.90</td>
+                <td>67.71 &plusmn; 2.95</td><td>21.88 &plusmn; 5.10</td><td>68.8 &plusmn; 6.80</td><td><b>97.92 &plusmn; 3.61</b></td><td>95.83 &plusmn; 1.47</td><td><b>97.92 &plusmn; 3.61</b></td>
               </tr>
               <tr>
                 <td>Time (&mu;s)</td>
-                <td>9.24 &plusmn; 0.36</td><td>&ndash;<sup>&dagger;</sup></td><td>6.63 &plusmn; 0.04</td>
-                <td><b>4.99 &plusmn; 0.02</b></td>
-                <td>8256 &plusmn; 900</td><td><b>4.96 &plusmn; 0.03</b></td>
+                <td>9.24 &plusmn; 0.36</td><td>&ndash;<sup>&dagger;</sup></td><td>6.63 &plusmn; 0.04</td><td><b>4.99 &plusmn; 0.02</b></td><td>8256 &plusmn; 900</td><td><b>4.96 &plusmn; 0.03</b></td>
               </tr>
 
               <tr>
                 <td rowspan="4"><b>DC</b></td>
                 <td>Safe</td>
-                <td>56.25 &plusmn; 5.10</td><td>70.83 &plusmn; 3.90</td><td>64.6 &plusmn; 13.10</td>
-                <td><b>95.83 &plusmn; 2.95</b></td>
-                <td><b>97.92 &plusmn; 1.47</b></td><td><b>97.92 &plusmn; 1.47</b></td>
+                <td>56.25 &plusmn; 5.10</td><td>70.83 &plusmn; 3.90</td><td>64.6 &plusmn; 13.10</td><td><b>97.92 &plusmn; 1.80</b></td><td><b>97.92 &plusmn; 1.47</b></td><td><b>97.92 &plusmn; 1.80</b></td>
               </tr>
               <tr>
                 <td>Reach</td>
-                <td>52.08 &plusmn; 3.90</td><td>2.08 &plusmn; 2.95</td><td>27.1 &plusmn; 3.90</td>
-                <td><b>92.71 &plusmn; 2.95</b></td>
-                <td><b>95.83 &plusmn; 1.47</b></td><td>93.75 &plusmn; 1.42</td>
+                <td>52.08 &plusmn; 3.90</td><td>2.08 &plusmn; 2.95</td><td>27.1 &plusmn; 3.90</td><td><b>95.83 &plusmn; 1.80</b></td><td><b>95.83 &plusmn; 1.47</b></td><td>94.79 &plusmn; 3.61</td>
               </tr>
               <tr>
                 <td>Success</td>
-                <td>52.08 &plusmn; 3.90</td><td>2.08 &plusmn; 2.95</td><td>21.9 &plusmn; 2.60</td>
-                <td><b>92.71 &plusmn; 2.95</b></td>
-                <td><b>94.79 &plusmn; 1.47</b></td><td>93.75 &plusmn; 4.42</td>
+                <td>52.08 &plusmn; 3.90</td><td>2.08 &plusmn; 2.95</td><td>21.9 &plusmn; 2.60</td><td><b>93.75 &plusmn; 0.00</b></td><td><b>94.79 &plusmn; 1.47</b></td><td>94.79 &plusmn; 3.61</td>
               </tr>
               <tr>
                 <td>Time (&mu;s)</td>
-                <td>9.90 &plusmn; 0.21</td><td>&ndash;<sup>&dagger;</sup></td><td>6.70 &plusmn; 0.02</td>
-                <td><b>4.79 &plusmn; 0.01</b></td>
-                <td>9280 &plusmn; 1262</td><td><b>4.82 &plusmn; 0.04</b></td>
+                <td>9.90 &plusmn; 0.21</td><td>&ndash;<sup>&dagger;</sup></td><td>6.70 &plusmn; 0.02</td><td><b>4.79 &plusmn; 0.01</b></td><td>9280 &plusmn; 1262</td><td><b>4.82 &plusmn; 0.04</b></td>
               </tr>
 
               <tr>
                 <td rowspan="4"><b>CF</b></td>
                 <td>Safe</td>
-                <td>88.54 &plusmn; 2.95</td><td><b>98.96 &plusmn; 1.80</b></td><td>91.7 &plusmn; 5.90</td>
-                <td>96.88 &plusmn; 2.55</td>
-                <td><b>93.75 &plusmn; 0.00</b></td><td><b>93.75 &plusmn; 2.55</b></td>
+                <td>88.54 &plusmn; 2.95</td><td><b>98.96 &plusmn; 1.80</b></td><td>91.7 &plusmn; 5.90</td><td>94.79 &plusmn; 3.61</td><td>93.75 &plusmn; 0.00</td><td><b>95.83 &plusmn; 4.77</b></td>
               </tr>
               <tr>
                 <td>Reach</td>
-                <td>85.42 &plusmn; 3.90</td><td>0.00 &plusmn; 0.00</td><td><b>96.9 &plusmn; 2.60</b></td>
-                <td>92.71 &plusmn; 3.90</td>
-                <td><b>100.00 &plusmn; 0.00</b></td><td>94.79 &plusmn; 5.31</td>
+                <td>85.42 &plusmn; 3.90</td><td>0.00 &plusmn; 0.00</td><td><b>96.9 &plusmn; 2.60</b></td><td>94.79 &plusmn; 6.51</td><td><b>100.00 &plusmn; 0.00</b></td><td>93.75 &plusmn; 6.25</td>
               </tr>
               <tr>
                 <td>Success</td>
-                <td>85.42 &plusmn; 3.90</td><td>0.00 &plusmn; 0.00</td><td>88.5 &plusmn; 3.90</td>
-                <td><b>89.58 &plusmn; 8.20</b></td>
-                <td><b>93.75 &plusmn; 0.00</b></td><td>88.54 &plusmn; 7.37</td>
+                <td>85.42 &plusmn; 3.90</td><td>0.00 &plusmn; 0.00</td><td>88.5 &plusmn; 3.90</td><td><b>89.58 &plusmn; 10.05</b></td><td>93.75 &plusmn; 0.00</td><td><b>89.58 &plusmn; 10.05</b></td>
               </tr>
               <tr>
                 <td>Time (&mu;s)</td>
-                <td>9.51 &plusmn; 0.38</td><td>&ndash;<sup>&dagger;</sup></td><td>8.63 &plusmn; 0.03</td>
-                <td><b>5.12 &plusmn; 0.04</b></td>
-                <td>2773 &plusmn; 103</td><td><b>5.08 &plusmn; 0.03</b></td>
+                <td>9.51 &plusmn; 0.38</td><td>&ndash;<sup>&dagger;</sup></td><td>8.63 &plusmn; 0.03</td><td><b>5.12 &plusmn; 0.04</b></td><td>2773 &plusmn; 103</td><td><b>5.08 &plusmn; 0.03</b></td>
               </tr>
             </tbody>
           </table>
@@ -486,96 +462,6 @@
             <img width=100% src="./figs/generalization.png">
           </center>
 
-          <br>
-
-          <b>
-            The same evaluation in numbers, at the training workspace size.
-          </b>
-          The table below tabulates the smaller-workspace bars of Fig.&nbsp;2 ($l = 4$ for DI and DC, $l = 3$ for CF) across the three densities, for both the Sim and Dyn-Head variants.
-
-          <div class="table-scroll">
-          <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
-            <thead>
-              <tr>
-                <th rowspan="2">Env.</th>
-                <th rowspan="2">$\rho$</th>
-                <th rowspan="2">$M$</th>
-                <th colspan="2">Safe</th>
-                <th colspan="2">Reach</th>
-                <th colspan="2">Success</th>
-              </tr>
-              <tr>
-                <th>Sim</th><th>Dyn-Head</th>
-                <th>Sim</th><th>Dyn-Head</th>
-                <th>Sim</th><th>Dyn-Head</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td rowspan="3"><b>DI</b></td>
-                <td>0.50</td><td>8</td>
-                <td>98.96 &plusmn; 1.47</td><td>94.79 &plusmn; 3.90</td>
-                <td>96.88 &plusmn; 2.55</td><td>93.75 &plusmn; 4.42</td>
-                <td>95.83 &plusmn; 2.95</td><td>89.58 &plusmn; 3.90</td>
-              </tr>
-              <tr>
-                <td>0.75</td><td>12</td>
-                <td>97.92 &plusmn; 2.95</td><td>92.71 &plusmn; 5.31</td>
-                <td>95.83 &plusmn; 3.90</td><td>92.71 &plusmn; 5.31</td>
-                <td>93.75 &plusmn; 4.42</td><td>86.46 &plusmn; 5.89</td>
-              </tr>
-              <tr>
-                <td>1.00</td><td>16</td>
-                <td>94.79 &plusmn; 3.90</td><td>91.67 &plusmn; 5.31</td>
-                <td>93.75 &plusmn; 4.42</td><td>90.62 &plusmn; 6.75</td>
-                <td>88.54 &plusmn; 5.31</td><td>83.33 &plusmn; 8.96</td>
-              </tr>
-
-              <tr>
-                <td rowspan="3"><b>DC</b></td>
-                <td>0.50</td><td>8</td>
-                <td>97.92 &plusmn; 2.95</td><td>96.88 &plusmn; 2.55</td>
-                <td>91.67 &plusmn; 6.42</td><td>87.50 &plusmn; 4.42</td>
-                <td>91.67 &plusmn; 6.42</td><td>87.50 &plusmn; 4.42</td>
-              </tr>
-              <tr>
-                <td>0.75</td><td>12</td>
-                <td>97.92 &plusmn; 2.95</td><td>94.79 &plusmn; 3.90</td>
-                <td>88.54 &plusmn; 5.31</td><td>84.38 &plusmn; 5.10</td>
-                <td>88.54 &plusmn; 5.31</td><td>83.33 &plusmn; 6.42</td>
-              </tr>
-              <tr>
-                <td>1.00</td><td>16</td>
-                <td>95.83 &plusmn; 1.47</td><td>93.75 &plusmn; 2.55</td>
-                <td>79.67 &plusmn; 5.31</td><td>77.08 &plusmn; 5.89</td>
-                <td>79.17 &plusmn; 5.31</td><td>77.08 &plusmn; 5.89</td>
-              </tr>
-
-              <tr>
-                <td rowspan="3"><b>CF</b></td>
-                <td>0.50</td><td>13</td>
-                <td>90.62 &plusmn; 5.10</td><td>91.67 &plusmn; 3.90</td>
-                <td>92.71 &plusmn; 5.89</td><td>89.58 &plusmn; 3.90</td>
-                <td>84.38 &plusmn; 9.20</td><td>81.25 &plusmn; 6.75</td>
-              </tr>
-              <tr>
-                <td>0.75</td><td>20</td>
-                <td>86.46 &plusmn; 5.31</td><td>87.50 &plusmn; 2.55</td>
-                <td>93.75 &plusmn; 6.75</td><td>89.58 &plusmn; 5.31</td>
-                <td>82.29 &plusmn; 8.20</td><td>79.17 &plusmn; 5.89</td>
-              </tr>
-              <tr>
-                <td>1.00</td><td>27</td>
-                <td>80.21 &plusmn; 9.66</td><td>86.46 &plusmn; 5.31</td>
-                <td>94.79 &plusmn; 5.31</td><td>84.38 &plusmn; 4.42</td>
-                <td>77.08 &plusmn; 12.06</td><td>75.00 &plusmn; 6.75</td>
-              </tr>
-            </tbody>
-          </table>
-          </div>
-          <p class="table-caption has-text-centered">
-            Mean &plusmn; std over 32 environments and 3 seeds, 1024 timesteps.
-          </p>
         </div>
       </div>
     </div>
@@ -738,7 +624,7 @@
           <b>
             Effect of the predictive horizon $H$ on Double Integrator, with history length fixed at $T = 12$.
           </b>
-          The $H = 1$ setting corresponds to pointwise barrier supervision without multi-step predictive rollout, and gives the lowest safety rate. Increasing the horizon from $H = 1$ to $H = 6$ improves safety from $83.33\%$ to $95.83\%$, demonstrating the benefit of enforcing barrier constraints over predicted rollouts rather than only at the next step. Increasing $H$ further does not consistently help when the history length is fixed, because longer rollouts accumulate dynamics-head prediction error and introduce more linearized barrier constraints in the SQP subproblem. We therefore use $H = 6$ with $T = 12$ in the main experiments.
+          The $H = 1$ setting corresponds to pointwise barrier supervision without multi-step predictive rollout, and gives the lowest safety rate. Increasing the horizon from $H = 1$ to $H = 6$ improves safety from $84.38\%$ to $100.00\%$, demonstrating the benefit of enforcing barrier constraints over predicted rollouts rather than only at the next step. Increasing $H$ further does not consistently help when the history length is fixed, because longer rollouts accumulate dynamics-head prediction error and introduce more linearized barrier constraints in the SQP subproblem. We therefore use $H = 6$ with $T = 12$ in the main experiments.
 
           <div class="table-scroll">
           <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
@@ -751,15 +637,15 @@
                 <th>Success</th>
               </tr>
             </thead>
-            <tbody>
+                        <tbody>
               <tr>
                 <td rowspan="5">Ours (Dyn-Head)</td>
-                <td>1</td><td>83.33 &plusmn; 4.78</td><td>90.63 &plusmn; 6.25</td><td>78.12 &plusmn; 5.42</td>
+                <td>1</td><td>84.38 &plusmn; 3.12</td><td>86.46 &plusmn; 7.22</td><td>76.04 &plusmn; 7.86</td>
               </tr>
-              <tr><td>3</td><td>88.54 &plusmn; 5.89</td><td>97.92 &plusmn; 1.47</td><td>87.50 &plusmn; 6.75</td></tr>
-              <tr><td><b>6</b></td><td><b>95.83 &plusmn; 1.47</b></td><td>89.58 &plusmn; 6.42</td><td>88.54 &plusmn; 6.42</td></tr>
-              <tr><td>9</td><td>89.58 &plusmn; 5.31</td><td>97.92 &plusmn; 1.47</td><td>87.50 &plusmn; 6.75</td></tr>
-              <tr><td>12</td><td>89.58 &plusmn; 3.90</td><td>100.00 &plusmn; 0.00</td><td>89.58 &plusmn; 3.90</td></tr>
+              <tr><td>3</td><td>91.67 &plusmn; 1.80</td><td>91.67 &plusmn; 3.61</td><td>78.12 &plusmn; 11.27</td></tr>
+              <tr><td><b>6</b></td><td><b>100.00 &plusmn; 0.00</b></td><td><b>97.92 &plusmn; 3.61</b></td><td><b>97.92 &plusmn; 3.61</b></td></tr>
+              <tr><td>9</td><td>100.00 &plusmn; 0.00</td><td>94.79 &plusmn; 3.61</td><td>94.79 &plusmn; 3.61</td></tr>
+              <tr><td>12</td><td>100.00 &plusmn; 0.00</td><td>96.88 &plusmn; 3.12</td><td>96.88 &plusmn; 3.12</td></tr>
             </tbody>
           </table>
           </div>
@@ -791,24 +677,18 @@
                 <th>Frozen</th><th>Ours</th>
               </tr>
             </thead>
-            <tbody>
+                        <tbody>
               <tr>
                 <td><b>DI</b></td>
-                <td>79.17 &plusmn; 8.20</td><td><b>95.83 &plusmn; 1.47</b></td>
-                <td><b>96.88 &plusmn; 2.55</b></td><td>89.58 &plusmn; 6.42</td>
-                <td>77.08 &plusmn; 9.66</td><td><b>88.54 &plusmn; 6.42</b></td>
+                <td>90.62 &plusmn; 5.41</td><td><b>100.00 &plusmn; 0.00</b></td><td>91.67 &plusmn; 4.77</td><td><b>97.92 &plusmn; 3.21</b></td><td>84.38 &plusmn; 8.27</td><td><b>97.92 &plusmn; 3.21</b></td>
               </tr>
               <tr>
                 <td><b>DC</b></td>
-                <td>67.71 &plusmn; 2.25</td><td><b>95.83 &plusmn; 2.95</b></td>
-                <td><b>100.00 &plusmn; 0.00</b></td><td>92.71 &plusmn; 2.95</td>
-                <td>67.71 &plusmn; 2.25</td><td><b>92.71 &plusmn; 2.95</b></td>
+                <td>82.29 &plusmn; 1.80</td><td><b>97.92 &plusmn; 1.80</b></td><td><b>96.88 &plusmn; 3.12</b></td><td>95.83 &plusmn; 1.80</td><td>80.21 &plusmn; 1.80</td><td><b>93.75 &plusmn; 0.00</b></td>
               </tr>
               <tr>
                 <td><b>CF</b></td>
-                <td>93.75 &plusmn; 5.10</td><td><b>96.88 &plusmn; 2.55</b></td>
-                <td>89.58 &plusmn; 3.90</td><td><b>92.71 &plusmn; 3.90</b></td>
-                <td>84.38 &plusmn; 9.20</td><td><b>89.58 &plusmn; 6.42</b></td>
+                <td>93.75 &plusmn; 3.12</td><td><b>94.79 &plusmn; 3.61</b></td><td><b>95.79 &plusmn; 6.51</b></td><td>94.79 &plusmn; 6.51</td><td>88.54 &plusmn; 9.02</td><td><b>89.58 &plusmn; 10.05</b></td>
               </tr>
             </tbody>
           </table>
@@ -886,7 +766,7 @@
           <b>
             Robustness to dynamics perturbations on Double Integrator.
           </b>
-          All policies are trained on the unperturbed dynamics and evaluated without retraining, under a parametric velocity mismatch $\dot{\mathbf{p}} = \alpha_\text{vel}\mathbf{v}$ and state-wise scaled process noise $\dot{\mathbf{x}} = f(\mathbf{x},\mathbf{u}) + \mathbf{w}$, $\mathbf{w} \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Sigma}_w)$. Under velocity mismatch the safety rate stays high across all tested $\alpha_\text{vel}$; the lower reaching rate at $\alpha_\text{vel} = 0.8$ is expected, since the robot moves more slowly and more often hits the episode time limit before arriving. Additive process noise is more challenging: safety remains above $92\%$ for $\sigma \leq 0.0025$ but drops as the disturbance magnitude increases. These are empirical robustness tests, not formal robust safety guarantees.
+          All policies are trained on the unperturbed dynamics and evaluated without retraining, under a parametric velocity mismatch $\dot{\mathbf{p}} = \alpha_\text{vel}\mathbf{v}$ and state-wise scaled process noise $\dot{\mathbf{x}} = f(\mathbf{x},\mathbf{u}) + \mathbf{w}$, $\mathbf{w} \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Sigma}_w)$. Under velocity mismatch the safety rate stays high across all tested $\alpha_\text{vel}$; the lower reaching rate at $\alpha_\text{vel} = 0.8$ is expected, since the robot moves more slowly and more often hits the episode time limit before arriving. Additive process noise is more challenging: safety remains at or above $97\%$ for $\sigma \leq 0.0025$ but drops as the disturbance magnitude increases. These are empirical robustness tests, not formal robust safety guarantees.
 
           <div class="table-scroll">
           <table class="table is-bordered is-striped is-narrow is-hoverable results-table">
@@ -900,30 +780,30 @@
                 <th>Safe</th><th>Reach</th><th>Success</th>
               </tr>
             </thead>
-            <tbody>
+                        <tbody>
               <tr>
                 <td rowspan="5">$\dot{\mathbf{p}} = \alpha_\text{vel}\mathbf{v}$</td>
-                <td>0.8</td><td>95.84</td><td>75.00</td><td>73.96</td>
+                <td>0.8</td><td>100.00 &plusmn; 0.00</td><td>80.21 &plusmn; 6.51</td><td>80.21 &plusmn; 6.51</td>
               </tr>
-              <tr><td>0.9</td><td>96.88</td><td>84.37</td><td>84.37</td></tr>
-              <tr><td>1.0</td><td>96.88</td><td>89.58</td><td>88.54</td></tr>
-              <tr><td>1.1</td><td>95.83</td><td>96.88</td><td>93.75</td></tr>
-              <tr><td>1.2</td><td>95.83</td><td>96.88</td><td>92.71</td></tr>
+              <tr><td>0.9</td><td>100.00 &plusmn; 0.00</td><td>92.71 &plusmn; 4.77</td><td>92.71 &plusmn; 4.77</td></tr>
+              <tr><td>1.0</td><td>100.00 &plusmn; 0.00</td><td>97.92 &plusmn; 3.61</td><td>97.92 &plusmn; 3.61</td></tr>
+              <tr><td>1.1</td><td>100.00 &plusmn; 0.00</td><td>100.00 &plusmn; 0.00</td><td>100.00 &plusmn; 0.00</td></tr>
+              <tr><td>1.2</td><td>100.00 &plusmn; 0.00</td><td>100.00 &plusmn; 0.00</td><td>100.00 &plusmn; 0.00</td></tr>
 
               <tr>
                 <td rowspan="6">$\dot{\mathbf{x}} = f(\mathbf{x},\mathbf{u}) + \mathbf{w}$</td>
-                <td>$\sigma = 0$</td><td>96.88</td><td>89.58</td><td>88.54</td>
+                <td>$\sigma = 0$</td><td>100.00 &plusmn; 0.00</td><td>97.92 &plusmn; 3.61</td><td>97.92 &plusmn; 3.61</td>
               </tr>
-              <tr><td>$\sigma = 0.001$</td><td>98.96</td><td>89.58</td><td>89.58</td></tr>
-              <tr><td>$\sigma = 0.0025$</td><td>92.71</td><td>86.46</td><td>83.33</td></tr>
-              <tr><td>$\sigma = 0.005$</td><td>73.96</td><td>82.29</td><td>68.75</td></tr>
-              <tr><td>$\sigma = 0.0075$</td><td>53.12</td><td>79.17</td><td>50.00</td></tr>
-              <tr><td>$\sigma = 0.01$</td><td>42.71</td><td>78.13</td><td>38.54</td></tr>
+              <tr><td>$\sigma = 0.001$</td><td>100.00 &plusmn; 0.00</td><td>96.88 &plusmn; 5.41</td><td>96.88 &plusmn; 5.41</td></tr>
+              <tr><td>$\sigma = 0.0025$</td><td>97.92 &plusmn; 3.61</td><td>96.88 &plusmn; 5.41</td><td>95.83 &plusmn; 7.22</td></tr>
+              <tr><td>$\sigma = 0.005$</td><td>90.62 &plusmn; 8.27</td><td>93.75 &plusmn; 10.83</td><td>86.46 &plusmn; 15.42</td></tr>
+              <tr><td>$\sigma = 0.0075$</td><td>75.00 &plusmn; 6.25</td><td>89.58 &plusmn; 10.97</td><td>69.79 &plusmn; 14.77</td></tr>
+              <tr><td>$\sigma = 0.01$</td><td>54.17 &plusmn; 9.02</td><td>86.46 &plusmn; 13.01</td><td>51.04 &plusmn; 14.43</td></tr>
             </tbody>
           </table>
           </div>
           <p class="table-caption has-text-centered">
-            Rates reported as percentages over 3 seeds with 32 environments per seed. For process noise, $\sigma_p = \sigma_v = \sigma$.
+            Mean &plusmn; standard deviation over 3 seeds with 32 environments per seed. For process noise, $\sigma_p = 4\sigma$ and $\sigma_v = 0.5\sigma$.
           </p>
         </div>
       </div>
