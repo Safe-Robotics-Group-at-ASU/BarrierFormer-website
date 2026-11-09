@@ -156,7 +156,7 @@
             <div class="publication-links">
               <!-- PDF Link. -->
               <span class="link-block">
-                <a href="./files/BarrierFormer.pdf"
+                <a href="./files/BarrierFormer.pdf?v=2"
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                       <i class="fas fa-file-pdf"></i>
@@ -334,13 +334,13 @@
         <div class="columns is-centered video-grid">
           <div class="column">
             <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-              <source src="./vids/di_barrierformer.mp4" type="video/mp4">
+              <source src="./vids/di_barrierformer.mp4?v=2" type="video/mp4">
             </video>
             <p class="video-caption">Double Integrator (2D, linear)</p>
           </div>
           <div class="column">
             <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-              <source src="./vids/dc_barrierformer.mp4" type="video/mp4">
+              <source src="./vids/dc_barrierformer.mp4?v=2" type="video/mp4">
             </video>
             <p class="video-caption">Dubins Car (2D, nonlinear)</p>
           </div>
@@ -459,7 +459,7 @@
           </b>
           Obstacle density is $\rho = M/l^{n_p}$, where $M$ is the number of obstacles and $n_p \in \{2,3\}$ is the dimension of the position space. Models are trained <i>only</i> at the smaller workspace and lowest density: $l = 4$ with $M = 8$ for DI and DC, giving $\rho = 0.50$, and $l = 3$ with $M = 6$ for Crazyflie, giving $\rho = 6/27 \approx 0.22$. They are then evaluated without retraining at $\rho \in \{0.50, 0.75, 1.00\}$ and $l \in \{4, 6\}$ (DI, DC) or $l \in \{3, 4\}$ (CF). Note that every Crazyflie column is therefore out of distribution in density: even the sparsest evaluated setting, $M = 13$ at $l = 3$, is more than twice the training density. To ensure a controlled, paired comparison, each instance is initialized at the highest density and lower-density variants are obtained by removing a random subset of obstacles while preserving the poses of all remaining ones, so density is the only factor that varies. Safety rates generally decrease with increasing density, as higher clutter reduces navigable space; at fixed density, performance generally decreases as the workspace grows, likely due to longer navigation paths and increased exposure to obstacles. Both variants retain substantial safety under these distribution shifts, with the largest drop when high density and a larger workspace are combined.
           <center>
-            <img width=100% src="./figs/generalization.png">
+            <img width=100% src="./figs/generalization.png?v=2">
           </center>
 
         </div>
@@ -494,17 +494,17 @@
       <div class="columns is-centered video-grid">
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_di_l4_rho050.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_di_l4_rho050.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 0.50$ &middot; 8 obstacles</p>
         </div>
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_di_l4_rho075.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_di_l4_rho075.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 0.75$ &middot; 12 obstacles</p>
         </div>
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_di_l4_rho100.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_di_l4_rho100.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 1.00$ &middot; 16 obstacles</p>
         </div>
       </div>
@@ -513,17 +513,17 @@
       <div class="columns is-centered video-grid">
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_di_l6_rho050.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_di_l6_rho050.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 0.50$ &middot; 18 obstacles</p>
         </div>
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_di_l6_rho075.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_di_l6_rho075.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 0.75$ &middot; 27 obstacles</p>
         </div>
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_di_l6_rho100.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_di_l6_rho100.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 1.00$ &middot; 36 obstacles</p>
         </div>
       </div>
@@ -532,17 +532,17 @@
       <div class="columns is-centered video-grid">
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_di_l8_rho050.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_di_l8_rho050.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 0.50$ &middot; 32 obstacles</p>
         </div>
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_di_l8_rho075.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_di_l8_rho075.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 0.75$ &middot; 48 obstacles</p>
         </div>
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_di_l8_rho100.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_di_l8_rho100.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 1.00$ &middot; 64 obstacles</p>
         </div>
       </div>
@@ -554,17 +554,17 @@
       <div class="columns is-centered video-grid">
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_dc_l4_rho050.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_dc_l4_rho050.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 0.50$ &middot; 8 obstacles</p>
         </div>
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_dc_l4_rho075.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_dc_l4_rho075.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 0.75$ &middot; 12 obstacles</p>
         </div>
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_dc_l4_rho100.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_dc_l4_rho100.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 1.00$ &middot; 16 obstacles</p>
         </div>
       </div>
@@ -573,17 +573,17 @@
       <div class="columns is-centered video-grid">
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_dc_l6_rho050.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_dc_l6_rho050.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 0.50$ &middot; 18 obstacles</p>
         </div>
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_dc_l6_rho075.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_dc_l6_rho075.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 0.75$ &middot; 27 obstacles</p>
         </div>
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_dc_l6_rho100.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_dc_l6_rho100.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 1.00$ &middot; 36 obstacles</p>
         </div>
       </div>
@@ -592,17 +592,17 @@
       <div class="columns is-centered video-grid">
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_dc_l8_rho050.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_dc_l8_rho050.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 0.50$ &middot; 32 obstacles</p>
         </div>
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_dc_l8_rho075.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_dc_l8_rho075.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 0.75$ &middot; 48 obstacles</p>
         </div>
         <div class="column">
           <video muted="" loop="" playsinline="" preload="metadata" data-autoplay-on-view>
-            <source src="./vids/gen_dc_l8_rho100.mp4" type="video/mp4"></video>
+            <source src="./vids/gen_dc_l8_rho100.mp4?v=2" type="video/mp4"></video>
           <p class="video-caption">$\rho = 1.00$ &middot; 64 obstacles</p>
         </div>
       </div>
